@@ -1,0 +1,24 @@
+# Secrets -- never commit
+.env
+.env.local
+.env.*.local
+
+# Caches (GitHub API responses + LLM completions, keyed by content hash)
+.cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Virtualenvs
+.venv/
+venv/
+
+# Postgres data volume
+pgdata/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store

@@ -1,0 +1,18 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: kairo-db
+    environment:
+      POSTGRES_USER: kairo
+      POSTGRES_PASSWORD: kairo
+      POSTGRES_DB: kairo
+    ports:
+      # 5433 on the host to avoid colliding with a local postgres on 5432
+      - "5433:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kairo -d kairo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
