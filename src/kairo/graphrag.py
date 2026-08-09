@@ -33,7 +33,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from . import db, graph, llm, supersede
+from . import db, graph, llm
 
 # A file path mentioned in a question: "why does fastapi/security/oauth2.py ...".
 # Requires a slash or a known code extension so ordinary prose ("the auth layer") does
@@ -122,6 +122,39 @@ def _decisions_for_file(repo_id: int, path: str, k: int) -> list[dict]:
     )
 
 
+def _decisions_as_of(repo_id: int, when: str, question: str, k: int) -> list[dict]:
+    """Decisions in force at `when`, ranked by relevance to the question.
+
+    The time filter and the similarity ranking have to COMPOSE. An earlier version called
+    `supersede.as_of()` and sliced the first k, but that function orders by `valid_from
+    DESC` -- so a temporal question got the k most *recent* decisions before the cutoff,
+    whatever they were about. Asking about async endpoints in September 2019 returned
+    decisions on default parameter values and 204 responses, and the arm reported "the
+    decisions do not contain this information" while the answer sat further down the list.
+
+    Filtering to the window and *then* ranking within it is the whole point: validity is
+    the thing embeddings cannot express, relevance is the thing they express well, and
+    each is applied where it is actually good.
+    """
+    vector = llm.embed([question])[0]
+    return db.query(
+        """
+        SELECT d.id, d.statement, d.rationale, d.scope, d.valid_from, d.valid_to,
+               d.confidence, i.number, i.title,
+               d.embedding <=> %s::vector AS distance
+        FROM decisions d
+        LEFT JOIN items i ON i.id = d.source_item_id
+        WHERE d.repo_id = %s
+          AND d.embedding IS NOT NULL
+          AND d.valid_from <= %s
+          AND (d.valid_to IS NULL OR d.valid_to > %s)
+        ORDER BY d.embedding <=> %s::vector
+        LIMIT %s
+        """,
+        (str(vector), repo_id, when, when, str(vector), k),
+    )
+
+
 def retrieve(repo_id: int, question: str, *, k: int = 8) -> dict[str, Any]:
     """Select context for a question, recording which mode was used and why.
 
@@ -140,7 +173,7 @@ def retrieve(repo_id: int, question: str, *, k: int = 8) -> dict[str, Any]:
             modes.append("anchored")
 
     if as_of_date:
-        temporal = supersede.as_of(repo_id, as_of_date)[:k]
+        temporal = _decisions_as_of(repo_id, as_of_date, question, k)
         if temporal:
             modes.append("as_of")
             seen = {r["id"] for r in rows}

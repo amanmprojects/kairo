@@ -83,9 +83,23 @@ def _multi_hop(repo_id: int, limit: int) -> list[dict]:
     The join is the point: the file name and the rationale never appear in the same
     document, so a retriever that only ranks documents has nothing to rank.
     """
+    # Two constraints that a naive version of this query gets wrong:
+    #
+    #   ASSETS. A PR that changes a decision also touches screenshots, lockfiles, and
+    #   .mo translations. "What decision drove the changes to image01.png" is not a
+    #   multi-hop question, it is noise with a file path in it.
+    #
+    #   DISTINCT ON. Without it, one decision spanning 30 files yields 30 near-identical
+    #   questions with identical ground truth -- which inflates the question count without
+    #   adding a single new capability test. One question per decision, anchored on its
+    #   least-churned file (via the ORDER BY), which is the most specific anchor available.
     rows = db.query(
         """
-        SELECT f.path, i.number, i.title, d.statement, d.rationale, d.id AS decision_id
+        SELECT DISTINCT ON (d.id)
+               f.path, i.number, i.title, d.statement, d.rationale, d.id AS decision_id,
+               (SELECT count(*) FROM edges e2
+                 WHERE e2.repo_id = e.repo_id AND e2.dst_type = 'file'
+                   AND e2.dst_id = f.id AND e2.rel = 'MODIFIED') AS file_churn
         FROM decisions d
         JOIN items i ON i.id = d.source_item_id
         JOIN edges e ON e.repo_id = d.repo_id
@@ -93,7 +107,10 @@ def _multi_hop(repo_id: int, limit: int) -> list[dict]:
                     AND e.rel = 'MODIFIED' AND e.dst_type = 'file'
         JOIN files f ON f.id = e.dst_id
         WHERE d.repo_id = %s AND d.rationale IS NOT NULL
-        ORDER BY d.confidence DESC
+          AND f.path ~ '\\.(py|md)$'
+          AND f.path NOT LIKE 'docs/img/%%'
+          AND f.path NOT LIKE '%%/__init__.py'
+        ORDER BY d.id, file_churn ASC, d.confidence DESC
         LIMIT %s
         """,
         (repo_id, limit),
@@ -133,19 +150,26 @@ def _temporal(repo_id: int, limit: int) -> list[dict]:
     )
     out: list[dict] = []
     for r in rows:
-        before = r["valid_to"].strftime("%Y-%m-%d")
-        after = r["valid_to"].strftime("%Y-%m-%d")
+        changed_on = r["valid_to"].strftime("%Y-%m-%d")
+
+        # Ask as of the MIDPOINT of the validity interval, not `valid_from`. An as-of date
+        # equal to valid_from sits exactly on a boundary, where an off-by-one in interval
+        # semantics (`<=` vs `<`) would still return the right row by luck. The midpoint is
+        # unambiguously inside the window, so a passing answer means the interval logic is
+        # actually right.
+        midpoint = r["valid_from"] + (r["valid_to"] - r["valid_from"]) / 2
         out.append({
             "category": "temporal",
             "question": (
-                f"As of {r['valid_from']:%B %Y}, what was the project's position on: "
+                f"As of {midpoint:%B %Y}, what was the project's position on: "
                 f"{r['statement'][:70]}?"
             ),
             "ground_truth": r["statement"],
             "evidence": {"kind": "as_of", "decision_id": r["id"],
-                         "as_of": r["valid_from"].strftime("%Y-%m-%d"),
-                         "superseded_on": before},
-            "note": "correct answer is the SUPERSEDED decision; later answer is wrong here",
+                         "as_of": midpoint.strftime("%Y-%m-%d"),
+                         "valid_from": r["valid_from"].strftime("%Y-%m-%d"),
+                         "superseded_on": changed_on},
+            "note": "correct answer is the SUPERSEDED decision; the later one is wrong here",
         })
         out.append({
             "category": "temporal",
@@ -154,10 +178,10 @@ def _temporal(repo_id: int, limit: int) -> list[dict]:
                 "If so, what replaced it and when?"
             ),
             "ground_truth": (
-                f"Yes. Replaced on {after} by: {r['successor']}"
+                f"Yes. Replaced on {changed_on} by: {r['successor']}"
             ),
             "evidence": {"kind": "supersession", "decision_id": r["id"],
-                         "successor_id": r["successor_id"], "changed_on": after},
+                         "successor_id": r["successor_id"], "changed_on": changed_on},
             "note": "requires representing that a fact ceased to be true",
         })
     return out

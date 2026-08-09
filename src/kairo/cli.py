@@ -142,11 +142,20 @@ def extract_cmd(
         raise typer.Exit(1)
 
     stats = extract_mod.extract(rid, min_comments=min_comments, limit=limit)
+
+    # Embed here rather than leaving it to `supersede`. Retrieval filters on
+    # `embedding IS NOT NULL`, so an un-embedded decision is invisible to the graph arm
+    # -- which showed up as the as-of mode silently degrading to semantic search because
+    # a different command had not been run yet. Extraction owns its own rows.
+    from . import supersede as sup
+    embedded = sup._embed_missing(rid)
+
     table = Table(title="extraction")
     table.add_column("metric")
     table.add_column("value", justify="right")
     for k, v in stats.items():
         table.add_row(k, str(v))
+    table.add_row("embedded", str(embedded))
     console.print(table)
 
 
