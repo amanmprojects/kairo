@@ -202,13 +202,12 @@ CREATE INDEX decision_edges_rev ON decision_edges (repo_id, dst_type, dst_id);
 -- A strawman baseline would invalidate the whole result -- and a panelist who knows the
 -- field would spot it immediately.
 CREATE TABLE chunks (
-    id           BIGSERIAL PRIMARY KEY,
-    repo_id      BIGINT NOT NULL REFERENCES repos(id) ON DELETE CASCADE,
-    source_type  TEXT NOT NULL,               -- 'item' | 'comment' | 'commit'
-    source_id    BIGINT NOT NULL,
-    text         TEXT NOT NULL,
-    created_at   TIMESTAMPTZ NOT NULL,        -- lets an ablation add temporal filtering
-    embedding    vector(384)      -- see note on decisions.embedding
+    id             BIGSERIAL PRIMARY KEY,
+    repo_id        BIGINT NOT NULL REFERENCES repos(id) ON DELETE CASCADE,
+    source_item_id BIGINT NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+    ordinal        INTEGER NOT NULL,        -- position within the thread
+    content        TEXT NOT NULL,
+    embedding      vector(384)      -- see note on decisions.embedding
 );
 
-CREATE INDEX chunks_src ON chunks (repo_id, source_type, source_id);
+CREATE INDEX chunks_src ON chunks (repo_id, source_item_id);

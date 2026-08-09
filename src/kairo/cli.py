@@ -204,5 +204,102 @@ def as_of_cmd(
     console.print(f"{len(rows)} decisions in force")
 
 
+@app.command("questions")
+def questions_cmd(
+    repo: str = typer.Argument(None),
+    single: int = typer.Option(15, "--single"),
+    multi: int = typer.Option(15, "--multi"),
+    temporal: int = typer.Option(10, "--temporal"),
+    recurrence: int = typer.Option(10, "--recurrence"),
+) -> None:
+    """Draft evaluation questions grounded in the graph.
+
+    Writes candidates to eval/questions.draft.json for hand-editing. These are a
+    starting point, not the evaluation set -- the final set should be human-owned.
+    """
+    from . import questions as q
+
+    repo = repo or _cfg.target_repo
+    rid = graph.repo_id_for(repo)
+    if not rid:
+        console.print(f"[red]{repo} not ingested[/red]")
+        raise typer.Exit(1)
+
+    drafted = q.draft(rid, single=single, multi=multi,
+                      temporal=temporal, recurrence=recurrence)
+    path = q.write(drafted)
+
+    counts: dict[str, int] = {}
+    for item in drafted:
+        counts[item["category"]] = counts.get(item["category"], 0) + 1
+
+    table = Table(title=f"drafted {len(drafted)} candidate questions")
+    table.add_column("category")
+    table.add_column("count", justify="right")
+    for k, v in sorted(counts.items()):
+        table.add_row(k, str(v))
+    console.print(table)
+    console.print(f"[yellow]draft[/yellow] written to {path}")
+    console.print("Review and edit by hand before using as an evaluation set.")
+
+
+@app.command("index")
+def index_cmd(repo: str = typer.Argument(None)) -> None:
+    """Build the vector-RAG baseline corpus (chunks + embeddings)."""
+    from . import baseline
+
+    repo = repo or _cfg.target_repo
+    rid = graph.repo_id_for(repo)
+    if not rid:
+        console.print(f"[red]{repo} not ingested[/red]")
+        raise typer.Exit(1)
+
+    stats = baseline.build(rid)
+    table = Table(title="baseline corpus")
+    table.add_column("metric")
+    table.add_column("value", justify="right")
+    for k, v in stats.items():
+        table.add_row(k, str(v))
+    console.print(table)
+
+
+@app.command("ask")
+def ask_cmd(
+    question: str = typer.Argument(...),
+    repo: str = typer.Argument(None),
+    k: int = typer.Option(8, "--k"),
+    arm: str = typer.Option("both", "--arm", help="graph | vector | both"),
+) -> None:
+    """Ask both retrieval arms the same question and show them side by side.
+
+    The comparison is the deliverable, so the default runs both. Retrieval mode is
+    printed for the graph arm because a temporal win means nothing without evidence that
+    the question actually took the as-of path.
+    """
+    from . import baseline, graphrag
+
+    repo = repo or _cfg.target_repo
+    rid = graph.repo_id_for(repo)
+    if not rid:
+        console.print(f"[red]{repo} not ingested[/red]")
+        raise typer.Exit(1)
+
+    if arm in ("graph", "both"):
+        g = graphrag.answer(rid, question, k=k)
+        console.print("[bold cyan]GRAPH[/bold cyan] "
+                      f"[dim]modes={'+'.join(g['modes'])} "
+                      f"anchor={g['anchor'] or '-'} as_of={g['as_of'] or '-'} "
+                      f"context={g['context_chars']} chars[/dim]")
+        console.print(g["answer"] + "\n")
+
+    if arm in ("vector", "both"):
+        v = baseline.answer(rid, question, k=k)
+        console.print("[bold magenta]VECTOR[/bold magenta] "
+                      f"[dim]{len(v['chunks'])} chunks from "
+                      f"{len({c['number'] for c in v['chunks']})} threads, "
+                      f"context={v['context_chars']} chars[/dim]")
+        console.print(v["answer"])
+
+
 if __name__ == "__main__":
     app()

@@ -152,30 +152,48 @@ coexisting refusals, not a replacement.
 
 **Timeline API over regex for PR->issue links.** Closing-keyword regex over titles and
 bodies found 26 CLOSES edges across 1000 items. GitHub's timeline API -- which records
-cross-references as events rather than prose -- found 126, plus 223 MENTIONS. Links made
-in comments, through the UI, or via commits are invisible to the regex. Three filters keep
-the edges honest: same-repo only (issue #12 collects cross-references from unrelated
-tutorial repos, which would make every popular issue a hub), PRs only for CLOSES, and the
-reference must precede the close.
+cross-references as events rather than prose -- found 186 across 1500 items, plus 394
+MENTIONS. Links made in comments, through the UI, or via commits are invisible to the
+regex. Three filters keep the edges honest: same-repo only (issue #12 collects
+cross-references from unrelated tutorial repos, which would make every popular issue a
+hub), PRs only for CLOSES, and the reference must precede the close.
 
 **Bounded ingests silently desynchronise.** GitHub pages issues oldest-first and commits
 newest-first, so `--max-pages 10` on both captured fastapi's *first* 1000 issues (2019)
 and its *last* 1000 commits (2026) -- disjoint eras, 153 shared files, and no path from a
 commit to the discussion that motivated it. Bounded runs now pin commits to the item
-window with `until`.
+window with `until`. After the fix both halves span 2018-12 to 2020-06: 1500 items, 1065
+commits, 4705 commit->file edges, and 266 files with four or more distinct item histories
+-- the substrate multi-hop and recurrence questions need.
+
+**Extraction confidence is not calibrated.** Across a full run the extractor emits only
+three distinct values -- 1.0 (67%), 0.95, and 0.9 -- so `confidence` is a coarse
+self-report, not a probability, and any extraction threshold below 0.9 is inert. It is
+still worth storing for provenance, and it retains some discriminative power in
+supersession detection, where the judge answers a harder yes/no question. Filtering bad
+extractions has to be done by the prompt and by verification, not by thresholding a number
+the model is not able to produce meaningfully.
+
+**A competent baseline is a load-bearing part of the claim.** The vector arm indexes the
+same 1500 threads into 7817 chunks with the same local embedding model, and it retrieves
+well: "why use async def instead of def" returns the right thread at distance 0.334. It
+also spends ~18% of its retrieval slots on repeat chunks from one thread, an honest cost
+of chunk overlap. Any win the graph shows against this has to come from structure, because
+the corpus, embeddings, and generator are held constant.
 
 ## Open questions
 
-- **Ingestion scope.** Currently 1000 commits / 1000 items of fastapi/fastapi. Full
-  history is ~50k commits and days of wall-clock at 5000 req/hour. A 5000-commit slice
-  covering 2-3 years may demonstrate longitudinal reasoning just as well. The current
-  data still has the misaligned window described above and needs a re-ingest.
-- **Extraction recall is unmeasured.** 101 decisions from 60 threads says nothing about
-  how many real decisions were missed. Precision is inspectable by reading the rows;
-  recall needs threads hand-labelled for what *should* have been found.
-- **Scope vocabulary was retrofitted.** The 101 existing decisions carry free-text
-  scopes; the closed vocabulary applies only to extractions after the prompt change.
-  Re-extraction is needed before DDI means anything.
+- **Ingestion scope.** Currently 1500 items and 1065 commits of fastapi/fastapi, spanning
+  2018-12 to 2020-06. Full history is ~50k commits and days of wall-clock at 5000
+  req/hour. The current slice covers the framework's formative period, which is where the
+  interesting reversals are.
+- **Extraction recall is unmeasured.** Precision is inspectable by reading the rows;
+  recall needs threads hand-labelled for what *should* have been found. This is the
+  weakest part of the evaluation and should be stated as such rather than hidden.
+- **The evaluation question set is not yet human-reviewed.** `kairo questions` drafts
+  candidates grounded in database rows so ground truth is checkable, but a set authored by
+  the system under test is not a credible instrument until a person has cut and rewritten
+  it. That review is owed before any number gets reported.
 
 ## Layout
 
