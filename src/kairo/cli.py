@@ -310,5 +310,44 @@ def ask_cmd(
         console.print(v["answer"])
 
 
+@app.command("evaluate")
+def evaluate_cmd(
+    repo: str = typer.Argument(None),
+    k: int = typer.Option(8, "--k", help="context items per arm; same for both"),
+    limit: int = typer.Option(None, "--limit", help="cap questions (testing)"),
+) -> None:
+    """Run both arms over the question set and score them per category."""
+    from . import evaluate as ev
+
+    repo = repo or _cfg.target_repo
+    rid = graph.repo_id_for(repo)
+    if not rid:
+        console.print(f"[red]{repo} not ingested[/red]")
+        raise typer.Exit(1)
+
+    payload = ev.run(rid, k=k, limit=limit)
+    path = ev.write(payload)
+
+    table = Table(title=f"graph vs vector baseline - {repo}")
+    table.add_column("category")
+    table.add_column("n", justify="right")
+    table.add_column("graph correct", justify="right")
+    table.add_column("base correct", justify="right")
+    table.add_column("graph temporal", justify="right")
+    table.add_column("base temporal", justify="right")
+    for cat, s in payload["summary"].items():
+        if cat == "total":
+            continue
+        g, b = s["graph"], s["baseline"]
+        table.add_row(
+            cat, str(s["n"]),
+            f"{g['correct']:.2f}", f"{b['correct']:.2f}",
+            "-" if g["temporal"] is None else f"{g['temporal']:.2f}",
+            "-" if b["temporal"] is None else f"{b['temporal']:.2f}",
+        )
+    console.print(table)
+    console.print(f"full results written to {path}")
+
+
 if __name__ == "__main__":
     app()
