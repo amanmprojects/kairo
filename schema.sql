@@ -211,3 +211,164 @@ CREATE TABLE chunks (
 );
 
 CREATE INDEX chunks_src ON chunks (repo_id, source_item_id);
+
+-- ============================================================================
+-- KAIRO WORKSPACE (planning layer)
+-- ============================================================================
+-- GitHub remains the source of truth for issues and pull requests. These tables store
+-- KAIRO's lightweight planning overlay: a team can organise the same GitHub artifacts
+-- into a workflow without duplicating their title, body, or discussion.
+CREATE TABLE workspaces (
+    id BIGSERIAL PRIMARY KEY,
+    repo_id BIGINT NOT NULL UNIQUE REFERENCES repos(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE board_columns (
+    id BIGSERIAL PRIMARY KEY,
+    workspace_id BIGINT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    name TEXT NOT NULL, position INTEGER NOT NULL,
+    color TEXT NOT NULL DEFAULT '#6e8b80', is_done BOOLEAN NOT NULL DEFAULT FALSE,
+    UNIQUE (workspace_id, position), UNIQUE (workspace_id, name)
+);
+CREATE TABLE board_items (
+    id BIGSERIAL PRIMARY KEY,
+    workspace_id BIGINT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    item_id BIGINT NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+    column_id BIGINT NOT NULL REFERENCES board_columns(id) ON DELETE CASCADE,
+    position DOUBLE PRECISION NOT NULL DEFAULT 0,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (workspace_id, item_id)
+);
+CREATE INDEX board_items_column ON board_items (workspace_id, column_id, position);
+CREATE TABLE epics (
+    id BIGSERIAL PRIMARY KEY,
+    workspace_id BIGINT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    title TEXT NOT NULL, description TEXT, state TEXT NOT NULL DEFAULT 'open',
+    start_date DATE, target_date DATE, created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE TABLE epic_items (
+    epic_id BIGINT NOT NULL REFERENCES epics(id) ON DELETE CASCADE,
+    item_id BIGINT NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+    PRIMARY KEY (epic_id, item_id)
+);
+CREATE TABLE sprints (
+    id BIGSERIAL PRIMARY KEY,
+    workspace_id BIGINT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    name TEXT NOT NULL, starts_at DATE NOT NULL, ends_at DATE NOT NULL,
+    state TEXT NOT NULL DEFAULT 'planned', created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CHECK (ends_at >= starts_at)
+);
+CREATE TABLE sprint_items (
+    sprint_id BIGINT NOT NULL REFERENCES sprints(id) ON DELETE CASCADE,
+    item_id BIGINT NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+    estimate INTEGER, PRIMARY KEY (sprint_id, item_id),
+    CHECK (estimate IS NULL OR estimate >= 0)
+);
+
+CREATE TABLE users (
+    id BIGSERIAL PRIMARY KEY,
+    github_id BIGINT UNIQUE NOT NULL,
+    login TEXT NOT NULL,
+    name TEXT,
+    email TEXT,
+    avatar_url TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE organizations (
+    id BIGSERIAL PRIMARY KEY,
+    github_id BIGINT UNIQUE NOT NULL,
+    login TEXT NOT NULL,
+    name TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE workspace_repositories (
+    workspace_id BIGINT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    repo_id BIGINT NOT NULL REFERENCES repos(id) ON DELETE CASCADE,
+    PRIMARY KEY (workspace_id, repo_id)
+);
+
+CREATE TABLE boards (
+    id BIGSERIAL PRIMARY KEY,
+    workspace_id BIGINT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE roadmaps (
+    id BIGSERIAL PRIMARY KEY,
+    workspace_id BIGINT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE roadmap_items (
+    id BIGSERIAL PRIMARY KEY,
+    roadmap_id BIGINT NOT NULL REFERENCES roadmaps(id) ON DELETE CASCADE,
+    epic_id BIGINT REFERENCES epics(id) ON DELETE SET NULL,
+    item_id BIGINT REFERENCES items(id) ON DELETE SET NULL,
+    start_date DATE,
+    target_date DATE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE webhook_events (
+    id BIGSERIAL PRIMARY KEY,
+    repo_id BIGINT REFERENCES repos(id) ON DELETE CASCADE,
+    event_type TEXT NOT NULL,
+    payload JSONB NOT NULL,
+    received_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    processed_at TIMESTAMPTZ
+);
+
+CREATE TABLE scan_runs (
+    id BIGSERIAL PRIMARY KEY,
+    repo_id BIGINT NOT NULL REFERENCES repos(id) ON DELETE CASCADE,
+    target_type TEXT NOT NULL,
+    target_id BIGINT NOT NULL,
+    status TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    completed_at TIMESTAMPTZ
+);
+
+CREATE TABLE impact_findings (
+    id BIGSERIAL PRIMARY KEY,
+    scan_id BIGINT NOT NULL REFERENCES scan_runs(id) ON DELETE CASCADE,
+    impact_level TEXT NOT NULL,
+    description TEXT NOT NULL,
+    finding_type TEXT NOT NULL,
+    details JSONB
+);
+
+CREATE TABLE metric_snapshots (
+    id BIGSERIAL PRIMARY KEY,
+    repo_id BIGINT NOT NULL REFERENCES repos(id) ON DELETE CASCADE,
+    metric_name TEXT NOT NULL,
+    metric_value REAL NOT NULL,
+    target_type TEXT,
+    target_id BIGINT,
+    recorded_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE repository_health_scores (
+    id BIGSERIAL PRIMARY KEY,
+    repo_id BIGINT NOT NULL REFERENCES repos(id) ON DELETE CASCADE,
+    readiness_score REAL NOT NULL,
+    hotspots_count INTEGER NOT NULL,
+    fragile_modules_count INTEGER NOT NULL,
+    recorded_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE TABLE notifications (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type TEXT NOT NULL,
+    content TEXT NOT NULL,
+    read BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
