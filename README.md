@@ -41,6 +41,17 @@ allows 60 requests/hour instead of 5000, which is not enough to ingest a repo.
     kairo churn -n 15
     kairo history src/click/core.py
 
+## Web workspace
+
+KAIRO also includes a responsive engineering-intelligence workspace. It exposes the
+existing temporal graph as an evidence-backed Q&A surface, Codebase X-Ray, and a
+deterministic pre-merge Change Impact Scan.
+
+    kairo-web
+
+Then open http://127.0.0.1:8000. Ingest a repository first; the workspace reads the
+same PostgreSQL graph as the CLI and does not create a parallel data store.
+
 ## Architecture
 
 Two graphs, deliberately kept in separate tables.
