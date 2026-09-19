@@ -25,6 +25,7 @@ dev = [
 
 [project.scripts]
 kairo = "kairo.cli:app"
+kairo-web = "kairo.web:serve"
 
 [build-system]
 requires = ["hatchling"]
