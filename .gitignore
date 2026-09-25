@@ -22,3 +22,7 @@ pgdata/
 .vscode/
 .idea/
 .DS_Store
+desktop.ini
+*.aux
+*.log
+*.out
