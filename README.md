@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="frontend/public/logo.jpg" width="120" alt="KIARO Logo" />
-  <h1>KIARO</h1>
+  <img src="frontend/public/kairo-logo.svg" width="100" alt="KAIRO Logo" />
+  <h1>KAIRO</h1>
   <p><strong>A Temporal Knowledge Graph Based Engineering Intelligence Platform</strong></p>
   <p>
     <img src="https://img.shields.io/badge/Category-Generative_AI_&_LLMOps-06b6d4?style=for-the-badge" alt="AI" />
@@ -11,17 +11,17 @@
 
 ## 📖 Background
 
-Modern software engineering teams rely on distributed toolchains-GitHub, Jira, Slack, and wikis-that efficiently track the **current state** of tasks but systematically fail to preserve the **reasoning** behind critical architectural decisions. Over time, the intended architecture diverges from the implemented codebase, and teams lose the ability to answer fundamental questions like *"Why does the auth layer use JWT?"* or *"What happens if we change this module?"*
+Modern software engineering teams rely on distributed toolchains (GitHub, Jira, Slack, wikis) that efficiently track the **current state** of tasks but systematically fail to preserve the **reasoning** behind critical architectural decisions. Over time, the intended architecture diverges from the implemented codebase, and teams lose the ability to answer fundamental questions like *"Why does the auth layer use JWT?"* or *"What happens if we change this module?"*
 
 Standard AI developer tools and Vector RAG (Retrieval-Augmented Generation) suffer from **Temporal Blindness**. They retrieve chunks based purely on semantic similarity, making it impossible to distinguish between an active architectural decision and a superseded one from years ago.
 
 ## 🎯 The Solution
 
-**KIARO** (Knowledge-graph Intelligence for Architectural Reasoning and Observability) is an AI-driven platform that reconstructs and preserves engineering memory. It ingests historical artifacts (commits, PRs, issues) and builds a bitemporal knowledge graph to answer deep architectural questions that simple search boxes cannot.
+**KAIRO** (Knowledge-graph Intelligence for Architectural Reasoning and Observability) is an AI-driven platform that reconstructs and preserves engineering memory. It ingests historical artifacts (commits, PRs, issues) and builds a bitemporal knowledge graph to answer deep architectural questions that simple search boxes cannot.
 
 ### Core Capabilities
 - 🧠 **Architectural Extraction**: Leverages LLMs to extract definitive architectural decisions from unstructured developer discussions.
-- ⏱️ **Bitemporal Graph Mapping**: Tracks both when KIARO learned a fact (*Transaction Time*) and when the fact was actually true in the real world (*Valid Time*).
+- ⏱️ **Bitemporal Graph Mapping**: Tracks both when KAIRO learned a fact (*Transaction Time*) and when the fact was actually true in the real world (*Valid Time*).
 - 📉 **Decision Drift Index (DDI)**: A quantifiable metric that measures how far the current codebase has drifted from documented architectural decisions.
 - 📊 **Engineering Evolution Score (EES)**: A longitudinal health metric for repositories based on delivery stability, ownership diversity, and drift.
 - 🛡️ **Change Impact Scanner**: A pre-merge analytical tool that scans modified files and predicts architectural risk using historical telemetry.
@@ -31,18 +31,18 @@ Standard AI developer tools and Vector RAG (Retrieval-Augmented Generation) suff
 ## 🔒 The "X-Factor" Features
 
 1. **Two-Layer "Trust-Isolated" Graph**
-   To prevent AI hallucinations from infecting factual data, KIARO strictly separates the graph:
+   To prevent AI hallucinations from infecting factual data, KAIRO strictly separates the graph:
    - **Layer 1 (Deterministic)**: 100% factual API data (Commits, PRs, Authors). Never wrong, zero LLM involvement.
    - **Layer 2 (Interpreted)**: LLM-extracted decisions carrying strict provenance (verbatim quotes) and confidence scores.
 
 2. **Three-Mode GraphRAG Retrieval**
-   KIARO dynamically selects retrieval modes based on user intent:
+   KAIRO dynamically selects retrieval modes based on user intent:
    - *Anchored*: Walks the graph from a specific file to find structural dependencies sharing zero vocabulary with the prompt.
    - *As-Of*: Filters temporal intervals to answer historical queries (e.g., *"What did we believe in March 2023?"*).
    - *Semantic*: Fallback `pgvector` similarity search.
 
 3. **Dynamic Hub Suppression**
-   Unrestricted graph traversal in codebases suffers from *Hub Domination* (e.g., a sweeping refactor commit connecting 500 unrelated files). KIARO implements mathematical degree-suppression, reducing result-set overlap from 56% to 27% and drastically improving LLM context quality.
+   Unrestricted graph traversal in codebases suffers from *Hub Domination* (e.g., a sweeping refactor commit connecting 500 unrelated files). KAIRO implements mathematical degree-suppression, reducing result-set overlap from 56% to 27% and drastically improving LLM context quality.
 
 ---
 
@@ -82,7 +82,7 @@ graph TD
         Anchored --> FastAPI["FastAPI Backend"]
         AsOf --> FastAPI
         Semantic --> FastAPI
-        FastAPI <--> |REST API| NextJS["Next.js Command Dashboard"]
+        FastAPI <--> |REST API / lib/api.ts| NextJS["Next.js Command Dashboard"]
     end
 ```
 
@@ -135,15 +135,38 @@ sequenceDiagram
 - **AI Integration:** OpenAI-compatible API with content-hash caching
 
 ### Engineering Workspace (Frontend)
-- **Framework:** Next.js 15 (App Router), React 19
-- **Styling:** Tailwind CSS v4 (Dark-mode tactical theme)
-- **UI Components:** Lucide Icons, React Joyride (Interactive Tours)
+- **Framework:** Next.js 16 (App Router), React 19, TypeScript
+- **Styling:** Tailwind CSS (Modern Light SaaS Aesthetic & Theme)
+- **Interactive Tour:** Native Docked Onboarding Tour Guide (`OnboardingGuide.tsx`) with progress tracking
+- **Icons:** Pure SVG brand lockup and Lucide icons
+
+---
+
+## 🧭 Application Routes
+
+### Marketing & Feature Hub
+- `/`: Column-based hero landing page with interactive portals and anchor navigation
+- `/product`: Two-layer trust isolation architecture breakdown
+- `/features/graphrag`: Three-Mode GraphRAG with SQL CTE traversal diagrams
+- `/features/drift-index`: Decision Drift Index and Engineering Evolution Score
+- `/features/impact-scanner`: Pre-merge blast radius and churn risk analyzer
+- `/pricing`: Community Free, Team, and Enterprise pricing tiers with FAQ
+- `/docs`: Documentation and architecture guide hub
+- `/connect`: GitHub OAuth connection page
+
+### Interactive Live Demo (`/demo`)
+- `/demo`: Workspace Overview with DDI (72/100), EES (85), Sprint 42, and live activity
+- `/demo/board`: ZenHub-inspired architecture-aware Sprint Kanban board with risk badges
+- `/demo/ask`: Three-Mode GraphRAG query console with verified evidence citations
+- `/demo/graph`: Temporal Knowledge Graph Explorer with hub suppression degree slider
+- `/demo/impact`: Pre-merge Change Impact Scanner with churn table and mitigation checklist
+- `/demo/settings`: Workspace and two-layer graph isolation settings
 
 ---
 
 ## 🚀 Setup & Installation
 
-To run KIARO, you need to spin up the FastAPI backend and the Next.js frontend in separate terminal windows.
+To run KAIRO, you can spin up the FastAPI backend and the Next.js frontend in separate terminal windows.
 
 ### 1. Terminal 1: Database & Python Backend
 Ensure you have Python 3.11+ and Docker installed.
@@ -174,4 +197,4 @@ npm run dev -p 3001
 *(The Command Dashboard will be available at `http://localhost:3001`)*
 
 ---
-*KIARO doesn't just track work-it protects teams from repeating mistakes.*
+*KAIRO does not just track work, it protects teams from repeating architectural mistakes.*
