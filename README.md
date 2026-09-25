@@ -132,7 +132,7 @@ sequenceDiagram
 - **Core Engine:** Python 3.11+, FastAPI, Uvicorn
 - **Database:** PostgreSQL 16 with `pgvector` extension
 - **Graph Traversal:** Native SQL Recursive CTEs (Replaces Neo4j)
-- **AI Integration:** OpenAI-compatible API with content-hash caching
+- **AI Integration:** OpenRouter / OpenAI-compatible API with content-hash caching (configured with `cohere/north-mini-code:free` or `openrouter/free`)
 
 ### Engineering Workspace (Frontend)
 - **Framework:** Next.js 16 (App Router), React 19, TypeScript
@@ -179,6 +179,10 @@ docker exec -i kairo-db psql -U kairo -d kairo < schema.sql
 # Setup Virtual Environment
 python -m venv .venv
 .\.venv\Scripts\activate  # Windows
+
+# Configure Environment (.env)
+cp .env.example .env
+# Set OPENAI_API_KEY in .env (OpenRouter key with cohere/north-mini-code:free)
 
 # Install & Run
 pip install -e .

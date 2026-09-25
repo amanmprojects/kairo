@@ -50,7 +50,7 @@ def load() -> Config:
     return Config(
         openai_base_url=base_url,
         openai_api_key=api_key,
-        openai_model=_require("OPENAI_MODEL", "e.g. OPENAI_MODEL=gpt-4o-mini"),
+        openai_model=_require("OPENAI_MODEL", "e.g. OPENAI_MODEL=cohere/north-mini-code:free or gpt-4o-mini"),
         embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
         # Some proxies serve chat and embeddings from different endpoints; fall back to
         # the chat endpoint when they don't.

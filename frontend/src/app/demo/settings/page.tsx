@@ -164,6 +164,43 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {/* 3. AI Model & Provider */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <h2 className="text-sm font-bold text-slate-900">LLM Intelligence Model</h2>
+          <p className="text-xs text-slate-500 mt-1">
+            Active provider and model for decision extraction and GraphRAG.
+          </p>
+        </div>
+        <div className="md:col-span-2 bg-white border border-slate-200/80 rounded-2xl p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between p-3.5 bg-slate-50 border border-slate-200/80 rounded-xl">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-xs">
+                OR
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-900">OpenRouter Gateway</h4>
+                <p className="text-[11px] font-mono text-slate-500">https://openrouter.ai/api/v1</p>
+              </div>
+            </div>
+            <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2.5 py-0.5 rounded-full">
+              Connected
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <span className="text-slate-500 text-[11px] block mb-1">Active Model</span>
+              <span className="font-mono font-bold text-teal-800 text-xs">cohere/north-mini-code:free</span>
+            </div>
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
+              <span className="text-slate-500 text-[11px] block mb-1">Context Length & Role</span>
+              <span className="font-semibold text-slate-800 text-xs">256k tokens (Code Specialist)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* 3. Team Members */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div>
