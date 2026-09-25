@@ -21,50 +21,50 @@ function GithubIcon({ size = 24, className = "" }: { size?: number; className?: 
 
 export default function Connect() {
   return (
-    <div className="flex h-screen items-center justify-center bg-black text-white font-sans">
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-zinc-900/80 to-transparent pointer-events-none" />
+    <div className="flex h-screen items-center justify-center bg-[#f8f9fb] text-[#1e1e2f] font-sans selection:bg-purple-200">
+      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-purple-50/50 to-transparent pointer-events-none" />
       
-      <div className="z-10 w-full max-w-lg p-8 rounded-2xl border border-zinc-800 bg-zinc-950/80 backdrop-blur-xl shadow-2xl">
-        <div className="flex justify-center mb-8">
-          <div className="h-12 w-12 rounded-full border border-zinc-800 flex items-center justify-center bg-zinc-900">
-            <GithubIcon size={24} className="text-white" />
+      <div className="z-10 w-full max-w-lg p-8 rounded-2xl border border-gray-200 bg-white shadow-xl">
+        <div className="flex justify-center mb-6">
+          <div className="h-11 w-11 rounded-xl border border-gray-200 flex items-center justify-center bg-gray-50">
+            <GithubIcon size={22} className="text-[#1e1e2f]" />
           </div>
         </div>
         
-        <div className="text-center space-y-2 mb-10">
-          <h1 className="text-2xl font-bold tracking-tight">Connect Repository</h1>
-          <p className="text-zinc-400 text-sm">Select an organization and repository for KIARO to analyze.</p>
+        <div className="text-center space-y-1.5 mb-8">
+          <h1 className="text-xl font-bold tracking-tight text-[#1e1e2f]">Connect Repository</h1>
+          <p className="text-gray-500 text-xs">Select a GitHub organization and repository to ingest into KIARO.</p>
         </div>
         
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase text-zinc-500 tracking-wider">Organization</label>
-            <select className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-3 px-4 text-white appearance-none focus:outline-none focus:border-teal-500">
+        <div className="space-y-5">
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase text-gray-500 tracking-wider">Organization</label>
+            <select className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3.5 text-xs text-gray-700 focus:outline-none focus:border-[#321c64] focus:ring-1 focus:ring-purple-200">
               <option>amanmprojects</option>
               <option>acme-corp</option>
             </select>
           </div>
           
-          <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase text-zinc-500 tracking-wider">Repository</label>
-            <select className="w-full bg-zinc-900 border border-zinc-800 rounded-lg py-3 px-4 text-white appearance-none focus:outline-none focus:border-teal-500">
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold uppercase text-gray-500 tracking-wider">Repository</label>
+            <select className="w-full bg-gray-50 border border-gray-200 rounded-xl py-2.5 px-3.5 text-xs text-gray-700 focus:outline-none focus:border-[#321c64] focus:ring-1 focus:ring-purple-200">
               <option>kairo</option>
               <option>next-pwa-template</option>
               <option>fastapi-backend</option>
             </select>
           </div>
           
-          <div className="p-4 rounded-lg bg-teal-500/10 border border-teal-500/30 flex gap-4">
-            <HardDrive className="text-teal-400 flex-shrink-0" size={20} />
-            <div className="text-sm">
-              <span className="block font-medium text-teal-400 mb-1">Ingestion Process</span>
-              <span className="text-teal-400/80">KIARO will securely index commits, PRs, issues, and discussions. This may take a few minutes.</span>
+          <div className="p-3.5 rounded-xl bg-purple-50 border border-purple-200 flex gap-3 text-xs">
+            <HardDrive className="text-[#321c64] flex-shrink-0 mt-0.5" size={16} />
+            <div>
+              <span className="block font-medium text-[#321c64] mb-0.5">Ingestion Pipeline</span>
+              <span className="text-gray-500 leading-relaxed text-[11px]">KIARO indexes commit graphs, issues, and pull requests to establish historical decisions.</span>
             </div>
           </div>
           
-          <Link href="/demo" className="block">
-            <button className="w-full h-12 flex items-center justify-center gap-2 rounded-lg bg-white text-black font-semibold transition-all hover:bg-zinc-200 hover:scale-[1.02]">
-              <RefreshCw size={18} />
+          <Link href="/demo" className="block pt-1">
+            <button className="w-full h-11 flex items-center justify-center gap-2 rounded-xl bg-[#321c64] hover:bg-[#25144b] text-white font-medium text-xs transition-all shadow-md shadow-purple-300/25">
+              <RefreshCw size={15} />
               Start Ingestion
             </button>
           </Link>
