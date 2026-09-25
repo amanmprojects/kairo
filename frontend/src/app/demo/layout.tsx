@@ -1,28 +1,41 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Activity,
   Kanban,
+  Layers,
   Search,
   Network,
   ShieldAlert,
   Settings as SettingsIcon,
   GitBranch,
   ExternalLink,
-  Sparkles,
+  Play,
 } from "lucide-react";
 import KairoLogo from "@/components/KairoLogo";
 import OnboardingGuide from "./OnboardingGuide";
+import JudgeAutoTour from "./JudgeAutoTour";
 
 export default function DemoLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [showJudgeTour, setShowJudgeTour] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("mode") === "judge") {
+        setShowJudgeTour(true);
+      }
+    }
+  }, []);
 
   const navLinks = [
     { name: "Overview", href: "/demo", icon: Activity, badge: null },
     { name: "Sprint Board", href: "/demo/board", icon: Kanban, badge: "3 PRs" },
+    { name: "Work Hierarchy", href: "/demo/hierarchy", icon: Layers, badge: "Q3" },
     { name: "Ask KAIRO", href: "/demo/ask", icon: Search, badge: "AI" },
     { name: "Knowledge Graph", href: "/demo/graph", icon: Network, badge: "2-Layer" },
     { name: "Impact Scan", href: "/demo/impact", icon: ShieldAlert, badge: "Risk" },
@@ -41,18 +54,25 @@ export default function DemoLayout({ children }: { children: React.ReactNode }) 
             Explore how KAIRO prevents architectural decay with bitemporal graphs.
           </span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
+          <button
+            onClick={() => setShowJudgeTour(true)}
+            className="flex items-center gap-1.5 bg-white hover:bg-teal-50 text-slate-900 font-bold px-3 py-1 rounded-md text-xs transition-all shadow-xs border border-white/60 group"
+          >
+            <Play size={12} className="fill-teal-600 text-teal-600 group-hover:scale-110 transition-transform" />
+            <span>Judge Auto-Demo (PR #412)</span>
+          </button>
           <Link
             href="/connect"
-            className="bg-white text-teal-800 hover:bg-slate-100 font-semibold px-3 py-1 rounded text-xs transition-colors shadow-sm"
+            className="bg-teal-900/60 hover:bg-teal-900 text-white font-medium px-2.5 py-1 rounded text-xs transition-colors hidden sm:inline-block"
           >
-            Connect GitHub Repo
+            Connect GitHub
           </Link>
           <Link
             href="/"
             className="text-white/80 hover:text-white flex items-center gap-1 text-xs transition-colors"
           >
-            <span>Exit Demo</span>
+            <span>Exit</span>
             <ExternalLink className="w-3 h-3" />
           </Link>
         </div>
@@ -188,6 +208,12 @@ export default function DemoLayout({ children }: { children: React.ReactNode }) 
 
       {/* 4. ZenHub-style Docked Onboarding Tour Popup */}
       <OnboardingGuide />
+
+      {/* 5. Judge Automated Tour Modal */}
+      <JudgeAutoTour
+        isOpen={showJudgeTour}
+        onClose={() => setShowJudgeTour(false)}
+      />
     </div>
   );
 }

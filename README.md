@@ -156,7 +156,8 @@ sequenceDiagram
 
 ### Interactive Live Demo (`/demo`)
 - `/demo`: Workspace Overview with DDI (72/100), EES (85), Sprint 42, and live activity
-- `/demo/board`: ZenHub-inspired architecture-aware Sprint Kanban board with risk badges
+- `/demo/board`: ZenHub-inspired architecture-aware Sprint Kanban board with risk badges and Fibonacci Planning Poker
+- `/demo/hierarchy`: Multi-level work hierarchy (Objectives -> Projects -> Epics -> Issues -> Sub-tasks) with automated progress rollups
 - `/demo/ask`: Three-Mode GraphRAG query console with verified evidence citations
 - `/demo/graph`: Temporal Knowledge Graph Explorer with hub suppression degree slider
 - `/demo/impact`: Pre-merge Change Impact Scanner with churn table and mitigation checklist

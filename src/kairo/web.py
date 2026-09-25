@@ -184,6 +184,34 @@ def patch_board_item(item_id: int, request: BoardItemPatch) -> dict:
     from . import planning
     return planning.move_item(row["repo_id"], item_id, request.column_id)
 
+@app.get("/workspaces/{workspace_id}/hierarchy")
+def workspace_hierarchy(workspace_id: int) -> dict:
+    try:
+        repo = db.query_one("SELECT repo_id FROM workspaces WHERE id = %s", (workspace_id,))
+        repo_id = repo["repo_id"] if repo else 1
+    except Exception:
+        repo_id = 1
+    from . import planning
+    return planning.hierarchy(repo_id)
+
+@app.get("/workspaces/{workspace_id}/poker")
+def workspace_poker(workspace_id: int) -> dict:
+    try:
+        repo = db.query_one("SELECT repo_id FROM workspaces WHERE id = %s", (workspace_id,))
+        repo_id = repo["repo_id"] if repo else 1
+    except Exception:
+        repo_id = 1
+    from . import planning
+    return planning.poker_sessions(repo_id)
+
+class StoryEstimateRequest(BaseModel):
+    points: int = Field(ge=0, le=100)
+
+@app.post("/board-items/{item_id}/estimate")
+def estimate_board_item(item_id: int, request: StoryEstimateRequest) -> dict:
+    from . import planning
+    return planning.estimate_item(1, item_id, request.points)
+
 @app.get("/workspaces/{workspace_id}/roadmap")
 def roadmap(workspace_id: int) -> dict:
     return {"epics": []}

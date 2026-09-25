@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CheckCircle2, Circle, Sparkles, X, ChevronRight, Compass } from "lucide-react";
+import { CheckCircle2, Circle, X, ChevronRight, Compass } from "lucide-react";
 
 interface TourStep {
   id: string;
@@ -25,8 +25,15 @@ const TOUR_STEPS: TourStep[] = [
     id: "board",
     name: "PLAN",
     tagline: "Architecture-Aware Board",
-    description: "Manage backlog with automated architectural impact badges on PRs and issues.",
+    description: "Manage backlog with automated impact badges and Fibonacci Planning Poker estimation.",
     href: "/demo/board",
+  },
+  {
+    id: "hierarchy",
+    name: "ALIGN",
+    tagline: "Multi-Level Hierarchy",
+    description: "Align Objectives down to Projects, Epics, and Sub-tasks with automated progress rollups.",
+    href: "/demo/hierarchy",
   },
   {
     id: "ask",
@@ -110,7 +117,7 @@ export default function OnboardingGuide() {
             <div className="flex items-start justify-between gap-3 mb-2">
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-600">
-                  <Sparkles className="w-3.5 h-3.5" />
+                  <Compass className="w-3.5 h-3.5" />
                 </div>
                 <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                   Interactive Demo Guide

@@ -16,7 +16,7 @@ import {
   ExternalLink,
   AlertCircle,
   Loader2,
-  Sparkles,
+  Zap,
   GitBranch,
   Key
 } from "lucide-react";
@@ -281,7 +281,7 @@ export default function ConnectPage() {
                   tab === "quick" ? "bg-white text-slate-900 shadow-xs" : "hover:text-slate-900"
                 }`}
               >
-                <Sparkles size={14} className="text-indigo-600" />
+                <Zap size={14} className="text-indigo-600" />
                 <span>1-Click Connect</span>
               </button>
             </div>

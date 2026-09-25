@@ -15,6 +15,7 @@ import {
   Clock,
   CheckCircle2,
   AlertTriangle,
+  Play
 } from "lucide-react";
 
 export default function DemoOverview() {
@@ -33,6 +34,13 @@ export default function DemoOverview() {
         </div>
         <div className="flex items-center gap-2">
           <Link
+            href="/demo?mode=judge"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg text-xs font-bold transition-all shadow-xs"
+          >
+            <Play className="w-3.5 h-3.5 fill-white text-white" />
+            <span>Judge Auto-Demo</span>
+          </Link>
+          <Link
             href="/demo/impact"
             className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-lg text-xs font-semibold transition-colors"
           >
@@ -47,6 +55,35 @@ export default function DemoOverview() {
             <span>Ask KAIRO</span>
           </Link>
         </div>
+      </div>
+
+      {/* Judge 1-Click Interactive Walkthrough Card */}
+      <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-teal-500/10 border border-amber-500/30 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+        <div className="flex items-start sm:items-center gap-3.5">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white shrink-0 shadow-sm">
+            <Play className="w-5 h-5 fill-white text-white ml-0.5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-bold text-slate-900">
+                Judge Auto-Demo: Full Architectural Walkthrough (PR #412)
+              </h2>
+              <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-bold border border-amber-300">
+                Automated PR Flow
+              </span>
+            </div>
+            <p className="text-xs text-slate-600 mt-0.5">
+              Watch KAIRO intercept PR #412 in real time: Syncing Layer 1 facts, scanning impact against ADR-042, bitemporal GraphRAG CTE traversal, work hierarchy rollup, and planning poker consensus.
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/demo?mode=judge"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all whitespace-nowrap"
+        >
+          <Play className="w-3.5 h-3.5 fill-white" />
+          <span>Launch Auto-Demo</span>
+        </Link>
       </div>
 
       {/* 4 Key Intelligence Metrics */}

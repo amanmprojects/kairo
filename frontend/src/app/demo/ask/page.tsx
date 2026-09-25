@@ -3,7 +3,8 @@
 import React, { useState } from "react";
 import {
   Search,
-  Sparkles,
+  Bot,
+  Zap,
   FileText,
   GitCommit,
   GitPullRequest,
@@ -38,7 +39,7 @@ export default function DemoAsk() {
       {/* Title */}
       <div className="text-center max-w-xl mx-auto space-y-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-xs font-semibold">
-          <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+          <Zap className="w-3.5 h-3.5 text-teal-600" />
           <span>Three-Mode GraphRAG Query Engine</span>
         </div>
         <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
@@ -154,7 +155,7 @@ export default function DemoAsk() {
           <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
             <div className="flex items-center gap-2">
               <div className="w-7 h-7 rounded-lg bg-teal-50 flex items-center justify-center text-teal-600">
-                <Sparkles className="w-4 h-4" />
+                <Bot className="w-4 h-4" />
               </div>
               <div>
                 <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">

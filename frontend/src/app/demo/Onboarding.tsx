@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles, LayoutDashboard, Kanban, MessageSquare, ShieldAlert, X } from 'lucide-react';
+import { Compass, LayoutDashboard, Kanban, MessageSquare, ShieldAlert, X } from 'lucide-react';
 
 const steps = [
   {
-    icon: Sparkles,
+    icon: Compass,
     title: 'Welcome to KAIRO',
     body: 'KAIRO is an engineering intelligence platform that helps you understand the reasoning behind your codebase. Let us show you around.'
   },

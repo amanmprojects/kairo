@@ -16,7 +16,8 @@ import {
   CheckCircle2,
   Box,
   Layers,
-  Network
+  Network,
+  Play
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -61,6 +62,13 @@ export default function LandingPage() {
               <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors px-3 py-2">
                 Sign In
               </Link>
+              <Link 
+                href="/demo?mode=judge"
+                className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-3.5 py-2.5 rounded-lg shadow-sm shadow-amber-500/20 transition-all hover:scale-105"
+              >
+                <Play size={13} className="fill-white text-white" />
+                <span>Judge Auto-Demo</span>
+              </Link>
               <Link href="/demo" className="text-sm font-medium bg-teal-500 hover:bg-teal-600 text-white px-5 py-2.5 rounded-lg transition-colors shadow-sm shadow-teal-500/20">Take Tour</Link>
             </div>
 
@@ -86,6 +94,10 @@ export default function LandingPage() {
             <Link href="#docs" className="text-base font-medium text-slate-600 hover:text-teal-600" onClick={() => setMobileMenuOpen(false)}>Docs</Link>
             <hr className="border-slate-100" />
             <Link href="/login" className="text-base font-medium text-slate-600 hover:text-slate-900" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
+            <Link href="/demo?mode=judge" className="text-base font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-3 rounded-lg text-center flex items-center justify-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+              <Play size={16} className="fill-white text-white" />
+              <span>Judge Auto-Demo (PR #412)</span>
+            </Link>
             <Link href="/demo" className="text-base font-medium bg-teal-500 text-white px-4 py-3 rounded-lg text-center" onClick={() => setMobileMenuOpen(false)}>Take Tour</Link>
           </div>
         </div>
@@ -118,8 +130,15 @@ export default function LandingPage() {
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-3.5 pt-2">
                 <Link
+                  href="/demo?mode=judge"
+                  className="flex items-center gap-2 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-700 text-white px-7 py-3.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:-translate-y-0.5"
+                >
+                  <Play size={16} className="fill-white" />
+                  <span>Judge Auto-Demo (PR #412)</span>
+                </Link>
+                <Link
                   href="/demo"
-                  className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-7 py-3.5 rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                  className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-3.5 rounded-xl text-sm font-semibold transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                 >
                   <span>Explore Live Demo</span>
                   <ArrowRight size={16} />

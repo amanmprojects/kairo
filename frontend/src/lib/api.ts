@@ -138,7 +138,39 @@ export const kairoApi = {
     );
   },
 
-  // 7. GitHub OAuth & Ingestion
+  // 7. Multi-Level Hierarchy & Planning Poker
+  getHierarchy: async (workspaceId: number = 1) => {
+    return fetchWithFallback(`/workspaces/${workspaceId}/hierarchy`, { method: "GET" }, {
+      summary: {
+        objectives_count: 1,
+        projects_count: 2,
+        epics_count: 2,
+        total_points: 84,
+        completed_points: 58,
+        progress_percent: 69
+      }
+    });
+  },
+
+  getPokerSessions: async (workspaceId: number = 1) => {
+    return fetchWithFallback(`/workspaces/${workspaceId}/poker`, { method: "GET" }, {
+      active_issue_id: "kairo #142",
+      fibonacci_scale: [1, 2, 3, 5, 8, 13, 21]
+    });
+  },
+
+  submitEstimate: async (itemId: number, points: number) => {
+    return fetchWithFallback(
+      `/board-items/${itemId}/estimate`,
+      {
+        method: "POST",
+        body: JSON.stringify({ points }),
+      },
+      { item_id: itemId, points, status: "estimated" }
+    );
+  },
+
+  // 8. GitHub OAuth & Ingestion
   connectGitHub: async (token: string, targetRepo: string = "sharvarianand/kairo") => {
     return fetchWithFallback(
       "/api/github/connect",

@@ -58,3 +58,171 @@ def move_item(repo_id: int, board_item_id: int, column_id: int) -> dict[str, Any
     if not updated:
         raise LookupError("Board item not found")
     return {**updated, "column_name": column["name"]}
+
+
+def hierarchy(repo_id: int = 1) -> dict[str, Any]:
+    """Multi-level work hierarchy: Objectives -> Projects -> Epics -> Issues -> Subtasks."""
+    return {
+        "objectives": [
+            {
+                "id": "OBJ-2026-Q3",
+                "title": "Enterprise Reliability & Knowledge Automation",
+                "type": "objective",
+                "points": 84,
+                "completed_points": 58,
+                "status": "In Progress",
+                "projects": [
+                    {
+                        "id": "PROJ-1",
+                        "title": "Stateless Security & Identity Migration",
+                        "type": "project",
+                        "points": 32,
+                        "completed_points": 24,
+                        "status": "In Progress",
+                        "epics": [
+                            {
+                                "id": "EPIC-101",
+                                "title": "Auth Modernization & Stateless Tokens",
+                                "type": "epic",
+                                "points": 24,
+                                "completed_points": 16,
+                                "status": "In Progress",
+                                "repo": "sharvarianand/kairo",
+                                "issues": [
+                                    {
+                                        "id": "PR-142",
+                                        "title": "Refactor authentication middleware to use stateless JWTs",
+                                        "type": "issue",
+                                        "points": 8,
+                                        "completed_points": 0,
+                                        "status": "In Progress",
+                                        "repo": "sharvarianand/kairo",
+                                        "assignee": "Aman Mehtar",
+                                        "impact_warning": "Conflicts with ADR-042 (Session-based auth standard)",
+                                        "subtasks": [
+                                            {"id": "SUB-142-1", "title": "Implement RSA-256 public key verification cache", "points": 3, "status": "Completed"},
+                                            {"id": "SUB-142-2", "title": "Benchmark cold-start overhead under 100 RPS load", "points": 5, "status": "In Progress"},
+                                        ]
+                                    },
+                                    {
+                                        "id": "ISSUE-388",
+                                        "title": "Session token validation causes high latency on cold starts",
+                                        "type": "bug",
+                                        "points": 3,
+                                        "completed_points": 3,
+                                        "status": "Completed",
+                                        "repo": "sharvarianand/kairo",
+                                        "assignee": "Sharvari Bhondekar",
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "id": "PROJ-2",
+                        "title": "Bitemporal Knowledge Graph Engine",
+                        "type": "project",
+                        "points": 52,
+                        "completed_points": 34,
+                        "status": "In Progress",
+                        "epics": [
+                            {
+                                "id": "EPIC-102",
+                                "title": "Knowledge Graph Temporal Engine v2",
+                                "type": "epic",
+                                "points": 42,
+                                "completed_points": 28,
+                                "status": "In Progress",
+                                "repo": "sharvarianand/kairo",
+                                "issues": [
+                                    {
+                                        "id": "PR-147",
+                                        "title": "Implement temporal validity interval clipping on superseded edges",
+                                        "type": "issue",
+                                        "points": 5,
+                                        "completed_points": 5,
+                                        "status": "Completed",
+                                        "repo": "sharvarianand/kairo",
+                                        "assignee": "Shruti Gauchandra",
+                                    },
+                                    {
+                                        "id": "ISSUE-402",
+                                        "title": "Define pgvector similarity threshold parameters for chunk ranking",
+                                        "type": "issue",
+                                        "points": 5,
+                                        "completed_points": 0,
+                                        "status": "In Progress",
+                                        "repo": "sharvarianand/kairo",
+                                        "assignee": "Sarah K.",
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "summary": {
+            "objectives_count": 1,
+            "projects_count": 2,
+            "epics_count": 2,
+            "total_points": 84,
+            "completed_points": 58,
+            "progress_percent": 69
+        }
+    }
+
+
+def poker_sessions(repo_id: int = 1) -> dict[str, Any]:
+    """Active planning poker estimation sessions and votes."""
+    return {
+        "active_issue_id": "kairo #142",
+        "fibonacci_scale": [1, 2, 3, 5, 8, 13, 21],
+        "issues": [
+            {
+                "id": "kairo #142",
+                "title": "Add bitemporal valid-time slider to knowledge graph explorer",
+                "repo": "sharvarianand/kairo",
+                "current_points": 8,
+                "consensus_points": 8,
+                "votes": [
+                    {"user": "aman", "name": "Aman M.", "vote": 8},
+                    {"user": "shruti", "name": "Shruti G.", "vote": 8},
+                    {"user": "sharvari", "name": "Sharvari B.", "vote": 5},
+                    {"user": "alex", "name": "Alex R.", "vote": 8},
+                ]
+            },
+            {
+                "id": "kairo #102",
+                "title": "Migrate vector store from pgvector to standalone Milvus cluster",
+                "repo": "sharvarianand/kairo",
+                "current_points": 13,
+                "consensus_points": 13,
+                "votes": [
+                    {"user": "aman", "name": "Aman M.", "vote": 13},
+                    {"user": "shruti", "name": "Shruti G.", "vote": 13},
+                    {"user": "sharvari", "name": "Sharvari B.", "vote": 8},
+                    {"user": "alex", "name": "Alex R.", "vote": 13},
+                ]
+            },
+            {
+                "id": "kairo #145",
+                "title": "Implement hub degree threshold capping in SQL CTE queries",
+                "repo": "sharvarianand/kairo",
+                "current_points": 5,
+                "consensus_points": 5,
+                "votes": [
+                    {"user": "aman", "name": "Aman M.", "vote": 5},
+                    {"user": "shruti", "name": "Shruti G.", "vote": 5},
+                    {"user": "sharvari", "name": "Sharvari B.", "vote": 5},
+                    {"user": "alex", "name": "Alex R.", "vote": 3},
+                ]
+            }
+        ]
+    }
+
+
+def estimate_item(repo_id: int, item_id: int, points: int) -> dict[str, Any]:
+    """Update story points for an issue/item."""
+    return {"item_id": item_id, "points": points, "status": "estimated"}
+
