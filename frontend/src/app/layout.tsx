@@ -1,21 +1,25 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Inter, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+
+const robotoMono = Roboto_Mono({
+  variable: "--font-roboto-mono",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "KIARO: A Temporal Knowledge Graph Based Engineering Intelligence Platform for Software Project Reasoning",
+  title: "KAIRO: A Temporal Knowledge Graph Based Engineering Intelligence Platform for Software Project Reasoning",
   description: "Decision-aware engineering workspace and project intelligence.",
+  icons: {
+    icon: "/logo.svg",
+    shortcut: "/logo.svg",
+    apple: "/logo.svg",
+  },
 };
 
 export default function RootLayout({
@@ -26,7 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black text-white`}
+        className={`${inter.variable} ${robotoMono.variable} antialiased bg-black text-white`}
       >
         {children}
       </body>
