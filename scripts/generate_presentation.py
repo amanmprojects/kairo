@@ -10,7 +10,7 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 
-OUTPUT_FILE = Path("KAIRO_Project_Purpose_Presentation.pptx")
+OUTPUT_FILE = Path("KAIRO_Presentation_Final.pptx")
 
 # ── Clean Light Theme Palette ─────────────────────────────────────────────────
 BG_MAIN     = RGBColor(0xFF, 0xFF, 0xFF)   # #FFFFFF Clean White
