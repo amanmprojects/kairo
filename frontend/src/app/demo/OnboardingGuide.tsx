@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CheckCircle2, Circle, X, ChevronRight, Compass } from "lucide-react";
+import { CheckCircle2, Circle, X, ChevronRight, Compass, RotateCcw } from "lucide-react";
 
 interface TourStep {
   id: string;
@@ -204,6 +204,17 @@ export default function OnboardingGuide() {
               Step {TOUR_STEPS.findIndex((s) => s.href === pathname) + 1 || 1} of {TOUR_STEPS.length}
             </span>
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  localStorage.removeItem("kairo_demo_visited");
+                  const current = TOUR_STEPS.find((s) => s.href === pathname);
+                  setVisited(current ? [current.id] : []);
+                }}
+                className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-md transition-colors"
+                title="Restart Tour Progress"
+              >
+                <RotateCcw className="w-4 h-4" />
+              </button>
               <Link
                 href="/connect"
                 className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-medium rounded-lg text-xs transition-colors shadow-sm"
