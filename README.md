@@ -69,9 +69,9 @@ Traditional Git logs record *what* changed, while standard issue trackers only r
 
 ---
 
-## 💻 Quick Start: Running the Frontend (No Docker Needed!)
+## 💻 Quick Start: Running the Frontend
 
-The modern Next.js frontend is **100% self-contained** and can be run immediately without Docker or local database setup:
+The modern Next.js frontend is **100% self-contained** and can be run immediately:
 
 ```powershell
 # 1. Navigate to the frontend directory
@@ -88,9 +88,9 @@ Open **[http://localhost:3000](http://localhost:3000)** (or **[http://localhost:
 
 ---
 
-## 🐳 Backend & Database Setup (Docker / Optional)
+## 🐳 Backend & Database Setup
 
-Whenever you are ready to run the background GitHub ingestion and Postgres knowledge graph engine:
+To run the background GitHub ingestion and Postgres knowledge graph engine:
 
 ### 1. Start the PostgreSQL Vector Database
 ```powershell
