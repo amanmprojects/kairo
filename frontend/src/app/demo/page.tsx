@@ -742,571 +742,793 @@ export default function DemoWorkspace() {
         setRunTour={setRunTour}
       />
 
-      {/* ── Left Navigation Sidebar (Clean Linearis Enterprise Style) ── */}
-      <aside className="w-64 bg-white text-slate-700 flex flex-col shrink-0 select-none border-r border-slate-200/90 shadow-[1px_0_3px_rgba(0,0,0,0.02)]">
-        {/* Brand Header */}
-        <div className="h-14 flex items-center px-4 border-b border-slate-200/80 justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="h-7 w-7 rounded-lg bg-[#321c64] flex items-center justify-center text-white shadow-sm font-bold text-xs">
-              <Check size={16} strokeWidth={3} />
-            </div>
-            <div>
-              <div className="font-bold tracking-tight text-xs text-slate-900 flex items-center gap-1.5">
-                KIARO{" "}
-                <span className="text-[9px] font-semibold text-[#321c64] px-1.5 py-0.5 rounded-full bg-purple-50 border border-purple-200/70 uppercase tracking-wider">
-                  ENTERPRISE
-                </span>
+      {/* ── Left Navigation Sidebar (User-Specified Linearis Design System) ── */}
+      <aside className="fixed left-0 top-0 h-full w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between overflow-y-auto select-none">
+        <div className="flex flex-col gap-y-4 p-4">
+          {/* Brand Header */}
+          <div className="flex items-center justify-between px-1 py-1">
+            <div className="flex items-center gap-x-2.5">
+              <div className="h-8 w-8 rounded-lg bg-primary-container flex items-center justify-center text-white shadow-sm font-bold text-xs">
+                <Check size={18} strokeWidth={3} />
+              </div>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-x-1.5">
+                  <span className="font-headline-sm text-headline-sm text-on-surface tracking-tight font-bold">
+                    KIARO
+                  </span>
+                  <span className="px-1.5 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-md text-label-md font-semibold uppercase">
+                    Enterprise
+                  </span>
+                </div>
               </div>
             </div>
+            <button className="text-on-surface-variant hover:text-on-surface p-1 rounded-lg transition-colors" type="button">
+              <span className="material-symbols-outlined text-[20px]">unfold_more</span>
+            </button>
           </div>
-          <button className="text-slate-400 hover:text-slate-600 p-1 rounded hover:bg-slate-100 transition-colors">
-            <span className="text-xs">⇅</span>
-          </button>
-        </div>
 
-        {/* Active Workspace Label */}
-        <div className="px-4 py-3 border-b border-slate-100">
-          <div className="flex items-center justify-between text-[9px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
-            <span>ACTIVE WORKSPACE</span>
-            <FolderKanban size={11} className="text-slate-400" />
+          {/* Active Workspace */}
+          <div className="bg-surface-container-low rounded-lg p-3 flex flex-col gap-y-1">
+            <div className="flex items-center justify-between text-on-surface-variant">
+              <span className="font-label-md text-label-md uppercase tracking-wider font-semibold">Active Workspace</span>
+              <span className="material-symbols-outlined text-[16px]">corporate_fare</span>
+            </div>
+            <div className="flex items-center justify-between cursor-pointer">
+              <span className="font-label-lg text-label-lg text-on-surface truncate font-medium">Starlight OS v4.2 / Core Product</span>
+              <span className="material-symbols-outlined text-[18px] text-on-surface-variant">expand_more</span>
+            </div>
           </div>
-          <button className="w-full flex items-center justify-between text-xs text-slate-800 font-semibold hover:text-[#321c64] transition-colors">
-            <span className="truncate">Starlight OS v4.2 / Core Product</span>
-            <ChevronDown size={13} className="text-slate-400 shrink-0 ml-1" />
-          </button>
-        </div>
 
-        {/* New Initiative CTA (Deep Royal Purple Button) */}
-        <div className="px-3 pt-3 pb-1">
+          {/* New Initiative Button */}
           <button
             onClick={() => setActiveTab("overview")}
-            className="w-full flex items-center justify-center gap-2 h-9 rounded-xl bg-[#321c64] hover:bg-[#25144b] text-white text-xs font-semibold shadow-sm transition-all"
+            className="w-full flex items-center justify-center gap-x-2 bg-primary-container text-on-primary font-label-lg text-label-lg py-2.5 px-4 rounded-lg shadow-sm hover:opacity-95 transition-opacity"
+            type="button"
           >
-            <Plus size={14} strokeWidth={2.5} /> New Initiative
+            <span className="material-symbols-outlined text-[18px]">add_circle</span>
+            <span>New Initiative</span>
           </button>
+
+          {/* Primary Navigation */}
+          <nav className="flex flex-col gap-y-1 mt-1">
+            {[
+              { id: "overview", name: "Overview & Portfolio", icon: "view_quilt" },
+              { id: "hierarchy", name: "Roadmap & Sprints", icon: "timeline" },
+              { id: "board", name: "Active Tasks & Board", icon: "view_kanban" },
+              { id: "team", name: "Team & Capacity", icon: "group" },
+              { id: "velocity", name: "Analytics & Velocity", icon: "monitoring" },
+            ].map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id as TabType)}
+                  className={`flex items-center gap-x-3 px-3 py-2 rounded-lg font-label-lg text-label-lg transition-all text-left ${
+                    isActive
+                      ? "bg-primary-container text-on-primary font-semibold shadow-sm"
+                      : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+                  }`}
+                  type="button"
+                >
+                  <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                  <span>{item.name}</span>
+                </button>
+              );
+            })}
+
+            {/* Intelligence & Workflows Expandable Row */}
+            <div className="pt-1">
+              <button
+                onClick={() => setShowAdvancedTools((prev) => !prev)}
+                className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface font-label-lg text-label-lg transition-all"
+                type="button"
+              >
+                <span className="flex items-center gap-x-3">
+                  <span className="material-symbols-outlined text-[20px]">smart_toy</span>
+                  <span>Intelligence &amp; Tools</span>
+                </span>
+                <span className={`material-symbols-outlined text-[18px] transition-transform ${showAdvancedTools ? "rotate-180" : ""}`}>
+                  expand_more
+                </span>
+              </button>
+
+              {showAdvancedTools && (
+                <div className="pl-4 pr-1 pt-1 space-y-1">
+                  {[
+                    { id: "impact", name: "PR Drift & Invariants", icon: "shield" },
+                    { id: "ask", name: "Ask KIARO AI", icon: "psychology" },
+                    { id: "xray", name: "Codebase X-Ray", icon: "bolt" },
+                    { id: "poker", name: "Planning Poker", icon: "style" },
+                    { id: "releases", name: "Releases & Delivery", icon: "package_2" },
+                    { id: "dependencies", name: "Dependencies", icon: "account_tree" },
+                    { id: "automations", name: "Workflow Rules", icon: "settings_suggest" },
+                  ].map((item) => {
+                    const isActive = activeTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => setActiveTab(item.id as TabType)}
+                        className={`w-full flex items-center gap-x-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all text-left ${
+                          isActive
+                            ? "bg-primary-fixed text-on-primary-fixed font-semibold"
+                            : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+                        }`}
+                        type="button"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">{item.icon}</span>
+                        <span>{item.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </nav>
         </div>
 
-        {/* Primary Navigation */}
-        <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto">
-          {[
-            { id: "overview", name: "Overview & Portfolio", icon: PieChart },
-            { id: "hierarchy", name: "Roadmap & Sprints", icon: Calendar },
-            { id: "board", name: "Active Tasks & Board", icon: FolderKanban },
-            { id: "team", name: "Team & Capacity", icon: Users },
-            { id: "velocity", name: "Analytics & Velocity", icon: BarChart3 },
-          ].map((item) => {
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id as TabType)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
-                  isActive
-                    ? "bg-purple-50 text-[#321c64] font-semibold border border-purple-200/70 shadow-sm"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                }`}
-              >
-                <item.icon
-                  size={15}
-                  className={isActive ? "text-[#321c64]" : "text-slate-400"}
-                />
-                <span>{item.name}</span>
-              </button>
-            );
-          })}
-
-          {/* Engineering Intelligence & Workflows Collapsible Drawer */}
-          <div className="pt-2">
-            <button
-              onClick={() => setShowAdvancedTools((prev) => !prev)}
-              className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:text-slate-900 hover:bg-slate-50 transition-colors"
-            >
-              <span className="flex items-center gap-2">
-                <Sparkles size={14} className="text-[#321c64]" />
-                <span>Intelligence &amp; Workflows</span>
-              </span>
-              <ChevronDown
-                size={13}
-                className={`text-slate-400 transition-transform duration-200 ${
-                  showAdvancedTools || ["poker", "releases", "dependencies", "automations", "xray", "impact", "ask"].includes(activeTab) ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            {(showAdvancedTools || ["poker", "releases", "dependencies", "automations", "xray", "impact", "ask"].includes(activeTab)) && (
-              <div className="pl-2 pr-1 pt-1 space-y-0.5 border-l-2 border-purple-100 ml-3.5 my-1">
-                {[
-                  { id: "impact", name: "PR Drift & Invariants", icon: ShieldAlert },
-                  { id: "ask", name: "Ask KIARO AI", icon: Search },
-                  { id: "xray", name: "Codebase X-Ray", icon: Zap },
-                  { id: "poker", name: "Planning Poker", icon: Zap },
-                  { id: "releases", name: "Releases & Delivery", icon: Boxes },
-                  { id: "dependencies", name: "Dependencies", icon: Link2 },
-                  { id: "automations", name: "Workflow Rules", icon: Workflow },
-                ].map((item) => {
-                  const isActive = activeTab === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => setActiveTab(item.id as TabType)}
-                      className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                        isActive
-                          ? "bg-purple-50 text-[#321c64] font-semibold"
-                          : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
-                      }`}
-                    >
-                      <item.icon size={13} className={isActive ? "text-[#321c64]" : "text-slate-400"} />
-                      <span>{item.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </nav>
-
-        {/* Sidebar Footer Vault Section */}
-        <div className="p-3.5 border-t border-slate-200/80 space-y-2 bg-slate-50/50">
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-[10px] text-slate-500 font-mono">
-              <span className="text-[9px] uppercase tracking-wider text-slate-400 font-semibold">INITIATIVE VAULT</span>
-              <span>78.4 GB / 100 GB</span>
+        {/* Sidebar Footer Vault */}
+        <div className="p-4 flex flex-col gap-y-4">
+          <div className="bg-surface-container-low rounded-lg p-3 flex flex-col gap-y-2">
+            <div className="flex items-center justify-between text-on-surface-variant">
+              <span className="font-label-md text-label-md uppercase font-semibold">Initiative Vault</span>
+              <span className="font-body-sm text-body-sm text-on-surface">78.4 GB / 100 GB</span>
             </div>
-            <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full w-[78%]"></div>
+            <div className="w-full bg-surface-container-highest h-1.5 rounded-full overflow-hidden">
+              <div className="bg-primary h-full w-[78%]"></div>
+            </div>
+            <div className="flex items-center justify-between pt-1">
+              <span className="font-label-md text-label-md text-on-surface-variant">Tier Status</span>
+              <span className="font-label-md text-label-md text-secondary font-semibold">Enterprise Core</span>
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-xs pt-1">
-            <span className="text-[10px] text-slate-500 font-medium">Tier Status</span>
-            <span className="text-[10px] font-semibold text-[#321c64] bg-purple-50 border border-purple-200/70 px-2 py-0.5 rounded">
-              Enterprise Core
+          <div className="flex items-center justify-between px-1 text-on-surface-variant font-label-md text-label-md">
+            <span className="hover:text-on-surface transition-colors flex items-center gap-1 cursor-pointer">
+              <span className="material-symbols-outlined text-[16px]">help</span>
+              <span>Support</span>
             </span>
-          </div>
-
-          <div className="flex items-center justify-between text-[10px] text-slate-400 pt-1.5 border-t border-slate-200/70">
-            <span className="hover:text-slate-700 cursor-pointer transition-colors">Support</span>
-            <span className="hover:text-slate-700 cursor-pointer transition-colors">API Docs</span>
-            <span className="hover:text-slate-700 cursor-pointer transition-colors">Security</span>
+            <span className="hover:text-on-surface transition-colors flex items-center gap-1 cursor-pointer">
+              <span className="material-symbols-outlined text-[16px]">terminal</span>
+              <span>API Docs</span>
+            </span>
+            <span className="hover:text-on-surface transition-colors flex items-center gap-1 cursor-pointer">
+              <span className="material-symbols-outlined text-[16px]">verified_user</span>
+              <span>Security</span>
+            </span>
           </div>
         </div>
       </aside>
 
-      {/* ── Main Content Container ── */}
-      <main className="flex-1 flex flex-col overflow-hidden bg-[#f8f9fb]">
-        {/* Top Control Bar (Linearis Tech Header) */}
-        <header className="h-14 flex items-center justify-between px-6 border-b border-slate-200/90 bg-white shrink-0 shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-          {/* Search Bar with ⌘K */}
-          <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200/80 rounded-lg px-3 py-1.5 w-80 text-xs focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-200 focus-within:bg-white transition-all">
-            <Search size={14} className="text-slate-400 shrink-0" />
-            <input
-              type="text"
-              placeholder="Search tasks, roadmaps, or milestones..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-transparent outline-none text-xs text-slate-700 placeholder-slate-400 w-full"
-            />
-            <span className="text-[10px] font-mono text-slate-400 bg-white border border-slate-200 px-1.5 py-0.2 rounded shadow-[0_1px_1px_rgba(0,0,0,0.05)] shrink-0">
-              ⌘K
-            </span>
+      {/* ── Main Area with Fixed Header & Fluid Content ── */}
+      <div className="pl-72 flex-1 flex flex-col min-h-screen bg-surface">
+        {/* Top Control Bar matching User Specification */}
+        <header className="fixed top-0 left-72 right-0 h-16 bg-surface/85 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-8">
+          <div className="flex items-center gap-x-4">
+            <div className="relative flex items-center">
+              <span className="material-symbols-outlined absolute left-3 text-[18px] text-on-surface-variant">search</span>
+              <input
+                className="w-80 bg-surface-container-lowest font-body-sm text-body-sm text-on-surface pl-9 pr-14 py-1.5 rounded-lg focus:outline-none shadow-[0_1px_3px_rgba(15,23,42,0.03)] placeholder:text-on-surface-variant/70 border border-slate-200/60"
+                placeholder="Search tasks, roadmaps, or milestones..."
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <span className="absolute right-2.5 px-1.5 py-0.5 rounded bg-surface-container font-label-md text-label-md text-on-surface-variant">
+                ⌘K
+              </span>
+            </div>
+
+            <div className="flex items-center gap-x-1.5 px-2.5 py-1 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md cursor-pointer hover:bg-surface-container-high transition-colors">
+              <span className="material-symbols-outlined text-[16px] text-secondary">domain</span>
+              <span>Production Env</span>
+              <span className="material-symbols-outlined text-[16px]">arrow_drop_down</span>
+            </div>
+
+            <div className="flex items-center gap-x-1.5 px-2.5 py-1 rounded-lg bg-surface-container-low text-on-surface-variant font-label-md text-label-md cursor-pointer hover:bg-surface-container-high transition-colors">
+              <span className="material-symbols-outlined text-[16px]">event_repeat</span>
+              <span>Q3 Sprint Cycle 14</span>
+              <span className="material-symbols-outlined text-[16px]">expand_more</span>
+            </div>
           </div>
 
-          {/* Right Badges & Profile */}
-          <div className="flex items-center gap-3">
-            {/* Production Env */}
-            <div className="hidden md:flex items-center gap-2 text-xs bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-lg text-slate-700 font-medium">
-              <span className="h-2 w-2 rounded-full bg-amber-500 ring-2 ring-amber-100 shrink-0"></span>
-              <span>Production Env</span>
-              <ChevronDown size={12} className="text-slate-400" />
+          <div className="flex items-center gap-x-4">
+            <div className="flex items-center gap-x-2">
+              <button
+                onClick={() => window.print()}
+                className="flex items-center gap-x-1.5 px-3 py-1.5 bg-surface-container-lowest hover:bg-surface-container-low text-on-surface font-label-lg text-label-lg rounded-lg shadow-sm transition-all border border-slate-200/80"
+                type="button"
+              >
+                <span className="material-symbols-outlined text-[18px]">download</span>
+                <span>Export Report</span>
+              </button>
+
+              {/* Guided Walkthrough CTA */}
+              <button
+                onClick={() => {
+                  setActiveTab("overview");
+                  setRunTour(true);
+                }}
+                className="flex items-center gap-x-1.5 px-3 py-1.5 bg-primary-fixed hover:opacity-95 text-on-primary-fixed font-label-lg text-label-lg rounded-lg shadow-sm transition-all"
+                type="button"
+                title="Launch Guided Product Walkthrough"
+              >
+                <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+                <span>Walkthrough</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab("board")}
+                className="flex items-center gap-x-1.5 px-3 py-1.5 bg-primary-container text-on-primary font-label-lg text-label-lg rounded-lg shadow-sm hover:opacity-95 transition-all"
+                type="button"
+              >
+                <span className="material-symbols-outlined text-[18px]">add</span>
+                <span>Add Task</span>
+              </button>
             </div>
 
-            {/* Q3 Sprint Cycle */}
-            <div className="hidden lg:flex items-center gap-2 text-xs bg-slate-50 border border-slate-200 px-2.5 py-1.5 rounded-lg text-slate-700 font-medium">
-              <Calendar size={13} className="text-slate-400 shrink-0" />
-              <span>Q3 Sprint Cycle 14</span>
-              <ChevronDown size={12} className="text-slate-400" />
-            </div>
-
-            {/* Export Report */}
-            <button
-              onClick={() => window.print()}
-              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs text-slate-600 font-medium transition-colors"
-            >
-              <Download size={13} /> Export Report
+            <button className="relative p-2 rounded-lg text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface transition-all" type="button">
+              <span className="material-symbols-outlined text-[22px]">notifications</span>
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-secondary ring-2 ring-surface"></span>
             </button>
 
-            {/* Guided Walkthrough CTA */}
-            <button
-              onClick={() => {
-                setActiveTab("overview");
-                setRunTour(true);
-              }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-purple-200/80 bg-purple-50 hover:bg-purple-100 text-xs text-[#321c64] font-semibold transition-all shadow-sm"
-              title="Launch Guided Product Walkthrough"
-            >
-              <Sparkles size={13} />
-              <span>Walkthrough</span>
-            </button>
-
-            {/* Add Task Primary CTA */}
-            <button
-              onClick={() => setActiveTab("board")}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#321c64] hover:bg-[#25144b] text-white text-xs font-semibold shadow-sm transition-all"
-            >
-              <Plus size={14} strokeWidth={2.5} /> Add Task
-            </button>
-
-            {/* Bell notification */}
-            <button className="relative p-1.5 text-slate-400 hover:text-slate-600 transition-colors">
-              <Bell size={16} />
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-amber-500 ring-2 ring-white"></span>
-            </button>
-
-            {/* User Profile */}
-            <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-              <div className="h-8 w-8 rounded-full bg-purple-100 text-[#321c64] border border-purple-200/80 flex items-center justify-center font-bold text-xs shadow-sm">
-                EV
+            <div className="flex items-center gap-x-3 pl-2 cursor-pointer">
+              <div className="relative">
+                <div className="w-8 h-8 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center font-bold text-xs shadow-sm">
+                  EV
+                </div>
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-surface"></span>
               </div>
-              <div className="hidden xl:block text-left">
-                <div className="text-xs font-semibold text-slate-800 leading-tight">Elena Vance</div>
-                <div className="text-[10px] text-slate-400 leading-tight">VP of Product</div>
+              <div className="flex flex-col text-left">
+                <span className="font-label-lg text-label-lg text-on-surface leading-tight font-semibold">Elena Vance</span>
+                <span className="font-label-md text-label-md text-on-surface-variant">VP of Product</span>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Tab Viewport */}
-        <div className="flex-1 overflow-auto p-6 lg:p-8">
-          <div className="max-w-[1440px] mx-auto space-y-7">
+        {/* Viewport Content */}
+        <main className="w-full pt-20 px-8 pb-16 min-h-screen bg-surface">
+          <div className="flex flex-col w-full space-y-8 max-w-[1440px] mx-auto">
             {/* ═══════════════════════════════════════════ */}
-            {/* 0. EXECUTIVE PORTFOLIO OVERVIEW            */}
+            {/* 0. EXECUTIVE PORTFOLIO OVERVIEW (Exact User HTML) */}
             {/* ═══════════════════════════════════════════ */}
             {activeTab === "overview" && (
-              <div className="space-y-6">
-                {/* Header Title Area */}
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                  <div>
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-50 border border-purple-200/80 text-[#321c64] text-[10px] font-semibold tracking-wide mb-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-[#321c64]"></span>
-                      Q3 PERFORMANCE CADENCE &middot; July 1 – Sept 30, 2026
-                    </div>
-                    <h1 className="editorial-title text-4xl sm:text-5xl text-slate-900 tracking-tight font-serif font-normal">
-                      Executive Portfolio Overview
-                    </h1>
-                    <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-2xl font-normal leading-relaxed">
-                      Track quarterly initiatives, delivery health, and cross-functional team allocation across 6 active product lines with calibrated governance.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={() => window.print()}
-                      className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-xs text-slate-700 font-medium transition-colors shadow-sm"
-                    >
-                      <Download size={13} /> Download PDF Brief
-                    </button>
-                    <button
-                      onClick={() => setActiveTab("board")}
-                      className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-[#321c64] hover:bg-[#25144b] text-white text-xs font-semibold shadow-sm transition-all"
-                    >
-                      <Plus size={14} strokeWidth={2.5} /> New Initiative
-                    </button>
-                  </div>
-                </div>
-
-                {/* 4 Top KPI Metric Cards (Matching Reference Screenshot 1) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 tour-overview">
-                  {/* Card 1: Total Active Initiatives */}
-                  <div className="p-5 rounded-xl border border-slate-200/90 bg-white shadow-sm space-y-3 hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                      <span>TOTAL ACTIVE INITIATIVES</span>
-                      <Layers size={15} className="text-[#4f46e5]" />
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-slate-900 font-mono">18</span>
-                      <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
-                        ↗ +3 MoM
-                      </span>
-                    </div>
-                    <div className="space-y-1.5 pt-1 border-t border-slate-100">
-                      <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-slate-400">Delivery Alignment</span>
-                        <span className="font-semibold text-slate-700">14 On Schedule</span>
-                      </div>
-                      {/* Segmented Bar */}
-                      <div className="w-full h-1.5 bg-slate-100 rounded-full flex overflow-hidden gap-0.5">
-                        <div className="bg-emerald-500 h-full w-[75%]" title="14 Target"></div>
-                        <div className="bg-amber-400 h-full w-[18%]" title="3 At Risk"></div>
-                        <div className="bg-rose-500 h-full w-[7%]" title="1 Delayed"></div>
-                      </div>
-                      <div className="flex items-center gap-2 text-[9px] text-slate-400 pt-0.5">
-                        <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500"></span> 14 Target</span>
-                        <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-amber-400"></span> 3 At Risk</span>
-                        <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-rose-500"></span> 1 Delayed</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Card 2: Overall Sprint Health */}
-                  <div className="p-5 rounded-xl border border-slate-200/90 bg-white shadow-sm space-y-3 hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                      <span>OVERALL SPRINT HEALTH</span>
-                      <CheckCircle2 size={15} className="text-emerald-500" />
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-slate-900 font-mono">94.2%</span>
-                      <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
-                        ↗ +4.8%
-                      </span>
-                    </div>
-                    <div className="space-y-1 pt-1 border-t border-slate-100 text-[11px]">
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-400">Cycle 14 Commit Reliability</span>
-                        <span className="text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.2 rounded text-[10px]">
-                          Nominal
+              <div className="flex flex-col w-full space-y-8">
+                {/* Editorial Hero Banner */}
+                <div className="relative w-full rounded-2xl bg-surface-container-lowest p-8 shadow-sm overflow-hidden tour-overview">
+                  <div className="absolute -right-24 -top-24 w-96 h-96 bg-primary-fixed/30 rounded-full blur-3xl pointer-events-none"></div>
+                  <div className="absolute right-1/3 -bottom-20 w-80 h-80 bg-secondary-fixed/20 rounded-full blur-2xl pointer-events-none"></div>
+                  <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <div className="max-w-3xl space-y-3">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-1 rounded-full bg-primary-fixed text-on-primary-fixed font-label-md text-label-md font-semibold tracking-wide uppercase">
+                          Q3 Performance Cadence
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-md text-label-md">
+                          <span className="material-symbols-outlined text-[15px] text-secondary">calendar_today</span>
+                          July 1 – Sept 30, 2025
                         </span>
                       </div>
-                      <p className="text-[10px] text-slate-500 leading-tight pt-1">
-                        Zero blockers flagged in executive triage
+                      <h1 className="font-display-lg text-display-lg text-on-surface tracking-tight leading-tight">
+                        Executive Portfolio Overview
+                      </h1>
+                      <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl leading-relaxed">
+                        Track quarterly initiatives, delivery health, and cross-functional team allocation across 6 active product lines with calibrated governance.
                       </p>
                     </div>
-                  </div>
-
-                  {/* Card 3: Resource Utilization */}
-                  <div className="p-5 rounded-xl border border-slate-200/90 bg-white shadow-sm space-y-3 hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                      <span>RESOURCE UTILIZATION</span>
-                      <Users size={15} className="text-purple-500" />
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-slate-900 font-mono">88%</span>
-                      <span className="text-[11px] font-semibold text-[#4f46e5] bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded">
-                        Balanced
-                      </span>
-                    </div>
-                    <div className="space-y-1 pt-1 border-t border-slate-100 text-[11px]">
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-400">Active Staffing Allocation</span>
-                        <span className="font-semibold text-slate-700">42 Contributors</span>
-                      </div>
-                      <p className="text-[10px] text-slate-400">
-                        Capacity: 1,680 hrs/wk &middot; 8 slots open
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Card 4: Quarterly Run-Rate */}
-                  <div className="p-5 rounded-xl border border-slate-200/90 bg-white shadow-sm space-y-3 hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                      <span>QUARTERLY RUN-RATE</span>
-                      <BarChart3 size={15} className="text-amber-500" />
-                    </div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-3xl font-bold text-slate-900 font-mono">$482k</span>
-                      <span className="text-xs text-slate-400 font-mono">/ $550k</span>
-                    </div>
-                    <div className="space-y-1.5 pt-1 border-t border-slate-100 text-[11px]">
-                      <div className="flex items-center justify-between">
-                        <span className="text-slate-400">87.6% Consumed</span>
-                        <span className="font-semibold text-emerald-600">$68,000 Remaining</span>
-                      </div>
-                      <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full w-[87.6%]"></div>
-                      </div>
-                      <p className="text-[10px] text-slate-400">
-                        Burn forecast: <strong className="text-slate-700 font-medium">On Track &middot; Safe Margin</strong>
-                      </p>
+                    <div className="flex items-center gap-3 self-start lg:self-center shrink-0">
+                      <button
+                        onClick={() => window.print()}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-lg text-label-lg transition-all shadow-sm"
+                        type="button"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">picture_as_pdf</span>
+                        <span>Download PDF Brief</span>
+                      </button>
+                      <button
+                        onClick={() => setActiveTab("board")}
+                        className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg shadow-sm hover:opacity-95 transition-all"
+                        type="button"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">add_task</span>
+                        <span>+ New Initiative</span>
+                      </button>
                     </div>
                   </div>
                 </div>
 
-                {/* Main Split: High-Priority Strategic Initiatives & Critical Milestones */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Left (2 cols): High-Priority Strategic Initiatives Table */}
-                  <div className="lg:col-span-2 space-y-3">
-                    <div className="flex items-center justify-between">
+                {/* Executive KPI Metric Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                  {/* Card 1: Active Initiatives */}
+                  <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between">
+                      <span className="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Active Initiatives</span>
+                      <div className="p-2 rounded-xl bg-surface-container-low text-primary">
+                        <span className="material-symbols-outlined text-[20px]">layers</span>
+                      </div>
+                    </div>
+                    <div className="my-4">
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-metric-display text-metric-display font-medium text-on-surface">18</span>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">+3 this month</span>
+                      </div>
+                      <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">14 on target &middot; 3 at risk &middot; 1 delayed</p>
+                    </div>
+                    <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden flex">
+                      <div className="bg-emerald-600 h-full" style={{ width: "78%" }}></div>
+                      <div className="bg-amber-500 h-full" style={{ width: "16%" }}></div>
+                      <div className="bg-error h-full" style={{ width: "6%" }}></div>
+                    </div>
+                  </div>
+
+                  {/* Card 2: Sprint Health */}
+                  <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between">
+                      <span className="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Sprint Health</span>
+                      <div className="p-2 rounded-xl bg-surface-container-low text-emerald-700">
+                        <span className="material-symbols-outlined text-[20px]">verified</span>
+                      </div>
+                    </div>
+                    <div className="my-4">
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-metric-display text-metric-display font-medium text-on-surface">94.2%</span>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">+4.8%</span>
+                      </div>
+                      <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">Cycle 14 commit reliability nominal</p>
+                    </div>
+                    <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-emerald-600 h-full rounded-full" style={{ width: "94.2%" }}></div>
+                    </div>
+                  </div>
+
+                  {/* Card 3: Team Allocation */}
+                  <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between">
+                      <span className="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Resource Utilization</span>
+                      <div className="p-2 rounded-xl bg-surface-container-low text-primary-container">
+                        <span className="material-symbols-outlined text-[20px]">groups_3</span>
+                      </div>
+                    </div>
+                    <div className="my-4">
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-metric-display text-metric-display font-medium text-on-surface">88%</span>
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed">Balanced</span>
+                      </div>
+                      <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">42 active contributors &middot; 8 open slots</p>
+                    </div>
+                    <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-primary-container h-full rounded-full" style={{ width: "88%" }}></div>
+                    </div>
+                  </div>
+
+                  {/* Card 4: Run-Rate */}
+                  <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between">
+                      <span className="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant font-semibold">Quarterly Run-Rate</span>
+                      <div className="p-2 rounded-xl bg-surface-container-low text-secondary">
+                        <span className="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+                      </div>
+                    </div>
+                    <div className="my-4">
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-metric-display text-metric-display font-medium text-on-surface">$482k</span>
+                        <span className="text-xs text-on-surface-variant">of $550k</span>
+                      </div>
+                      <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">$68,000 remaining &middot; On track</p>
+                    </div>
+                    <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+                      <div className="bg-secondary h-full rounded-full" style={{ width: "87.6%" }}></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Main 2-Column Showcase */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  {/* Left Column (Wide, 8 cols): Strategic Initiatives Table */}
+                  <div className="lg:col-span-8 bg-surface-container-lowest rounded-2xl shadow-sm p-6 space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div>
-                        <h2 className="editorial-title text-xl text-slate-900 font-serif font-normal">
+                        <h2 className="font-headline-md text-headline-md text-on-surface font-semibold tracking-tight">
                           High-Priority Strategic Initiatives
                         </h2>
-                        <p className="text-xs text-slate-400 mt-0.5">
+                        <p className="font-body-sm text-body-sm text-on-surface-variant">
                           Cross-functional deliverable status against Q3 executive milestones
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1.5 text-xs text-slate-600 bg-white border border-slate-200 px-2.5 py-1 rounded-lg">
-                          <span>All Product Lines</span>
-                          <ChevronDown size={12} className="text-slate-400" />
+                        <div className="relative">
+                          <span className="material-symbols-outlined absolute left-2.5 top-2 text-[16px] text-on-surface-variant">filter_list</span>
+                          <select className="pl-8 pr-7 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md focus:outline-none appearance-none cursor-pointer">
+                            <option>All Product Lines</option>
+                            <option>Mobile Core</option>
+                            <option>Intelligence Lab</option>
+                            <option>FinOps Portal</option>
+                            <option>Cloud Infrastructure</option>
+                          </select>
                         </div>
-                        <button className="p-1 text-slate-400 hover:text-slate-600 border border-slate-200 rounded bg-white">
-                          <LayoutGrid size={13} />
+                        <button className="p-1.5 rounded-lg bg-surface-container-low text-on-surface-variant hover:text-on-surface transition-colors" type="button">
+                          <span className="material-symbols-outlined text-[18px]">view_column</span>
                         </button>
                       </div>
                     </div>
 
-                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-                      <table className="w-full text-xs">
+                    {/* Rich Data Table Container */}
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left">
                         <thead>
-                          <tr className="bg-slate-50/80 border-b border-slate-200 text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
-                            <th className="text-left py-3 px-4">Initiative</th>
-                            <th className="text-left py-3 px-3">Lead &amp; Team</th>
-                            <th className="text-left py-3 px-3">Sprint Phase</th>
-                            <th className="text-left py-3 px-3">Milestone Progress</th>
-                            <th className="text-left py-3 px-4">Target</th>
+                          <tr className="text-on-surface-variant font-label-md text-label-md uppercase tracking-wider border-b border-surface-container">
+                            <th className="pb-3 px-2">Initiative</th>
+                            <th className="pb-3 px-3">Lead</th>
+                            <th className="pb-3 px-3">Progress</th>
+                            <th className="pb-3 px-3">Target Date</th>
+                            <th className="pb-3 px-3">Status</th>
+                            <th className="pb-3 px-2 text-right"></th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {[
-                            {
-                              name: "Mobile App Architecture Replatforming",
-                              subtitle: "Core Native Migration (v5.0)",
-                              iconBg: "bg-purple-100 text-[#4f46e5]",
-                              lead: "M. Chen",
-                              teamPlus: "+6",
-                              sprint: "Sprint 14",
-                              phase: "Refactor",
-                              progress: 78,
-                              tasks: "18/23 Tasks",
-                              target: "Aug 28",
-                            },
-                            {
-                              name: "AI Semantic Search & Indexing",
-                              subtitle: "Vector Graph Pipeline v2",
-                              iconBg: "bg-blue-100 text-blue-600",
-                              lead: "S. Jenkins",
-                              teamPlus: "+4",
-                              sprint: "Sprint 12",
-                              phase: "Embedding",
-                              progress: 54,
-                              tasks: "12/22 Tasks",
-                              target: "Sep 14",
-                            },
-                            {
-                              name: "Zero-Trust Auth & Session Tokens",
-                              subtitle: "Stateless Identity Hardening",
-                              iconBg: "bg-emerald-100 text-emerald-600",
-                              lead: "D. Chen",
-                              teamPlus: "+5",
-                              sprint: "Sprint 15",
-                              phase: "Security",
-                              progress: 91,
-                              tasks: "21/23 Tasks",
-                              target: "Aug 30",
-                            },
-                          ].map((item, idx) => (
-                            <tr key={idx} className="hover:bg-slate-50/60 transition-colors">
-                              <td className="py-3.5 px-4">
-                                <div className="flex items-center gap-3">
-                                  <div className={`h-8 w-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${item.iconBg}`}>
-                                    <Sparkles size={14} />
-                                  </div>
-                                  <div>
-                                    <div className="font-semibold text-slate-900 leading-snug">{item.name}</div>
-                                    <div className="text-[10px] text-slate-400">{item.subtitle}</div>
-                                  </div>
+                        <tbody className="divide-y divide-surface-container font-body-md text-body-md text-on-surface">
+                          {/* Row 1 */}
+                          <tr className="hover:bg-surface-container-low/40 transition-colors group">
+                            <td className="py-4 px-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-primary-fixed/50 flex items-center justify-center text-primary shrink-0">
+                                  <span className="material-symbols-outlined text-[18px]">phone_iphone</span>
                                 </div>
-                              </td>
-                              <td className="py-3.5 px-3">
-                                <div className="flex items-center gap-2">
-                                  <div className="h-6 w-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-700">
-                                    {item.lead.split(" ").map(w => w[0]).join("")}
-                                  </div>
-                                  <span className="text-slate-700 font-medium">{item.lead}</span>
-                                  <span className="text-[10px] text-slate-400 bg-slate-100 px-1 rounded font-mono">
-                                    {item.teamPlus}
+                                <div>
+                                  <span className="font-semibold text-on-surface group-hover:text-primary transition-colors block text-[15px]">
+                                    Mobile App Architecture Replatforming
                                   </span>
+                                  <span className="font-body-sm text-body-sm text-on-surface-variant">Core Native Migration &middot; Sprint 14</span>
                                 </div>
-                              </td>
-                              <td className="py-3.5 px-3">
-                                <div className="flex items-center gap-1.5">
-                                  <span className="font-medium text-slate-700">{item.sprint}</span>
-                                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-50 text-[#4f46e5] border border-purple-200 font-medium">
-                                    {item.phase}
+                              </div>
+                            </td>
+                            <td className="py-4 px-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-[10px]">
+                                  MC
+                                </div>
+                                <span className="font-label-lg text-label-lg text-on-surface">M. Chen</span>
+                              </div>
+                            </td>
+                            <td className="py-4 px-3">
+                              <div className="w-28 space-y-1.5">
+                                <div className="flex justify-between text-xs font-label-md text-on-surface-variant">
+                                  <span className="font-semibold text-on-surface">78%</span>
+                                  <span>18/23</span>
+                                </div>
+                                <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+                                  <div className="bg-primary-container h-full rounded-full" style={{ width: "78%" }}></div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-3 text-on-surface-variant font-label-lg text-label-lg whitespace-nowrap">
+                              Aug 28, 2025
+                            </td>
+                            <td className="py-4 px-3">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 font-label-md text-label-md font-semibold">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                                On Track
+                              </span>
+                            </td>
+                            <td className="py-4 px-2 text-right">
+                              <button className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">
+                                <span className="material-symbols-outlined text-[18px]">more_vert</span>
+                              </button>
+                            </td>
+                          </tr>
+
+                          {/* Row 2 */}
+                          <tr className="hover:bg-surface-container-low/40 transition-colors group">
+                            <td className="py-4 px-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-secondary-fixed/50 flex items-center justify-center text-secondary shrink-0">
+                                  <span className="material-symbols-outlined text-[18px]">psychology</span>
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-on-surface group-hover:text-secondary transition-colors block text-[15px]">
+                                    AI Semantic Search &amp; Workflow Automation
                                   </span>
+                                  <span className="font-body-sm text-body-sm text-on-surface-variant">RAG Embedding Pipeline &middot; Sprint 15</span>
                                 </div>
-                              </td>
-                              <td className="py-3.5 px-3">
-                                <div className="space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                                      <div
-                                        className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"
-                                        style={{ width: `${item.progress}%` }}
-                                      ></div>
-                                    </div>
-                                    <span className="font-mono font-semibold text-slate-700 text-[10px]">{item.progress}%</span>
-                                  </div>
-                                  <div className="text-[9px] text-slate-400 font-mono">{item.tasks}</div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-[10px]">
+                                  SA
                                 </div>
-                              </td>
-                              <td className="py-3.5 px-4 font-semibold text-slate-800 font-mono">
-                                {item.target}
-                              </td>
-                            </tr>
-                          ))}
+                                <span className="font-label-lg text-label-lg text-on-surface">S. Al-Mansoor</span>
+                              </div>
+                            </td>
+                            <td className="py-4 px-3">
+                              <div className="w-28 space-y-1.5">
+                                <div className="flex justify-between text-xs font-label-md text-on-surface-variant">
+                                  <span className="font-semibold text-on-surface">62%</span>
+                                  <span>24/38</span>
+                                </div>
+                                <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+                                  <div className="bg-secondary h-full rounded-full" style={{ width: "62%" }}></div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-3 text-on-surface-variant font-label-lg text-label-lg whitespace-nowrap">
+                              Sep 15, 2025
+                            </td>
+                            <td className="py-4 px-3">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 font-label-md text-label-md font-semibold">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                                Monitor
+                              </span>
+                            </td>
+                            <td className="py-4 px-2 text-right">
+                              <button className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">
+                                <span className="material-symbols-outlined text-[18px]">more_vert</span>
+                              </button>
+                            </td>
+                          </tr>
+
+                          {/* Row 3 */}
+                          <tr className="hover:bg-surface-container-low/40 transition-colors group">
+                            <td className="py-4 px-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-tertiary-fixed/50 flex items-center justify-center text-tertiary shrink-0">
+                                  <span className="material-symbols-outlined text-[18px]">security</span>
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-on-surface group-hover:text-primary transition-colors block text-[15px]">
+                                    SOC-2 Compliance &amp; Infrastructure Hardening
+                                  </span>
+                                  <span className="font-body-sm text-body-sm text-on-surface-variant">Type II Audit Readiness &middot; Sprint 14</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[10px]">
+                                  JR
+                                </div>
+                                <span className="font-label-lg text-label-lg text-on-surface">J. Rivera</span>
+                              </div>
+                            </td>
+                            <td className="py-4 px-3">
+                              <div className="w-28 space-y-1.5">
+                                <div className="flex justify-between text-xs font-label-md text-on-surface-variant">
+                                  <span className="font-semibold text-on-surface">91%</span>
+                                  <span>41/45</span>
+                                </div>
+                                <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+                                  <div className="bg-tertiary h-full rounded-full" style={{ width: "91%" }}></div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-3 text-on-surface-variant font-label-lg text-label-lg whitespace-nowrap">
+                              Aug 14, 2025
+                            </td>
+                            <td className="py-4 px-3">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 font-label-md text-label-md font-semibold">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                                On Track
+                              </span>
+                            </td>
+                            <td className="py-4 px-2 text-right">
+                              <button className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">
+                                <span className="material-symbols-outlined text-[18px]">more_vert</span>
+                              </button>
+                            </td>
+                          </tr>
+
+                          {/* Row 4 */}
+                          <tr className="hover:bg-surface-container-low/40 transition-colors group">
+                            <td className="py-4 px-2">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-error-container/40 flex items-center justify-center text-error shrink-0">
+                                  <span className="material-symbols-outlined text-[18px]">receipt_long</span>
+                                </div>
+                                <div>
+                                  <span className="font-semibold text-on-surface group-hover:text-primary transition-colors block text-[15px]">
+                                    Customer Billing Portal 2.0
+                                  </span>
+                                  <span className="font-body-sm text-body-sm text-on-surface-variant">Self-serve Invoicing &middot; Sprint 13</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-3">
+                              <div className="flex items-center gap-2">
+                                <div className="w-7 h-7 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-[10px]">
+                                  PP
+                                </div>
+                                <span className="font-label-lg text-label-lg text-on-surface">P. Patel</span>
+                              </div>
+                            </td>
+                            <td className="py-4 px-3">
+                              <div className="w-28 space-y-1.5">
+                                <div className="flex justify-between text-xs font-label-md text-on-surface-variant">
+                                  <span className="font-semibold text-on-surface">43%</span>
+                                  <span>12/28</span>
+                                </div>
+                                <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+                                  <div className="bg-error h-full rounded-full" style={{ width: "43%" }}></div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-3 text-on-surface-variant font-label-lg text-label-lg whitespace-nowrap">
+                              Oct 04, 2025
+                            </td>
+                            <td className="py-4 px-3">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-error-container text-on-error-container font-label-md text-label-md font-semibold">
+                                <span className="w-1.5 h-1.5 rounded-full bg-error"></span>
+                                High Risk
+                              </span>
+                            </td>
+                            <td className="py-4 px-2 text-right">
+                              <button className="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors" type="button">
+                                <span className="material-symbols-outlined text-[18px]">more_vert</span>
+                              </button>
+                            </td>
+                          </tr>
                         </tbody>
                       </table>
                     </div>
+
+                    {/* Table Footer / Strategic Pagination */}
+                    <div className="flex items-center justify-between pt-2">
+                      <span className="font-label-md text-label-md text-on-surface-variant">Showing 4 of 18 High-Priority Initiatives</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setActiveTab("hierarchy")}
+                          className="px-3 py-1.5 rounded-lg bg-surface-container-low text-on-surface font-label-md text-label-md hover:bg-surface-container transition-colors"
+                          type="button"
+                        >
+                          View All in Portfolio Explorer
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Right (1 col): Critical Milestones */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <h2 className="editorial-title text-xl text-slate-900 font-serif font-normal">
-                        Critical Milestones
-                      </h2>
-                      <span className="text-[10px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-                        3 Imminent
-                      </span>
-                    </div>
-
-                    <div className="space-y-3">
-                      {[
-                        {
-                          title: "Code Freeze (v4.2)",
-                          date: "Aug 18",
-                          subtitle: "Mobile App Architecture refactor branch lock & staging freeze",
-                          countdown: "T-minus 6 Days",
-                          status: "On Track",
-                          statusColor: "text-emerald-600 bg-emerald-50 border-emerald-200",
-                          dotColor: "bg-indigo-600",
-                        },
-                        {
-                          title: "Enterprise Beta Release",
-                          date: "Sep 02",
-                          subtitle: "Starlight OS AI semantic engine rolling rollout for Tier 1 pilot partners",
-                          countdown: "T-minus 21 Days",
-                          status: "Pending Validation",
-                          statusColor: "text-amber-700 bg-amber-50 border-amber-200",
-                          dotColor: "bg-amber-500",
-                        },
-                        {
-                          title: "Security Audit Signing",
-                          date: "Sep 12",
-                          subtitle: "External SOC-2 Type II audit for final attestation signoff",
-                          countdown: "T-minus 31 Days",
-                          status: "Scheduled",
-                          statusColor: "text-blue-700 bg-blue-50 border-blue-200",
-                          dotColor: "bg-slate-400",
-                        },
-                      ].map((m, idx) => (
-                        <div
-                          key={idx}
-                          className="p-4 rounded-xl border border-slate-200/90 bg-white space-y-2 shadow-sm hover:shadow-md transition-shadow relative pl-6"
-                        >
-                          <div className={`absolute left-2.5 top-5 h-2 w-2 rounded-full ${m.dotColor}`}></div>
-                          <div className="flex items-start justify-between gap-2">
-                            <h3 className="font-semibold text-xs text-slate-900">{m.title}</h3>
-                            <span className="text-[11px] font-mono text-slate-500 font-medium shrink-0">{m.date}</span>
+                  {/* Right Column (4 cols): Milestones, Velocity & Activity Feed */}
+                  <div className="lg:col-span-4 space-y-6">
+                    {/* Card A: Upcoming Critical Milestones */}
+                    <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-sm space-y-5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-secondary text-[20px]">flag</span>
+                          <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">Critical Milestones</h3>
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-label-md text-label-md font-semibold">
+                          3 Imminent
+                        </span>
+                      </div>
+                      <div className="divide-y divide-surface-container space-y-3 pt-1">
+                        {/* Milestone 1 */}
+                        <div className="pt-3 first:pt-0 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-on-surface text-[15px]">Code Freeze (v4.2)</span>
+                            <span className="font-label-md text-label-md text-secondary font-bold">Aug 18</span>
                           </div>
-                          <p className="text-[11px] text-slate-500 leading-relaxed font-normal">{m.subtitle}</p>
-                          <div className="flex items-center justify-between pt-1 text-[10px]">
-                            <span className="font-mono text-slate-400 font-medium">{m.countdown}</span>
-                            <span className={`px-2 py-0.5 rounded border font-medium ${m.statusColor}`}>
-                              {m.status}
-                            </span>
+                          <p className="font-body-sm text-body-sm text-on-surface-variant">Mobile architecture staging lock</p>
+                          <div className="flex items-center gap-3 pt-1 text-xs font-label-md text-on-surface-variant">
+                            <span>T-minus 6 days</span>
+                            <span>&bull;</span>
+                            <span className="text-emerald-700 font-semibold">On Track</span>
                           </div>
                         </div>
-                      ))}
+
+                        {/* Milestone 2 */}
+                        <div className="pt-3 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-on-surface text-[15px]">Enterprise Beta Release</span>
+                            <span className="font-label-md text-label-md text-on-surface font-semibold">Sep 02</span>
+                          </div>
+                          <p className="font-body-sm text-body-sm text-on-surface-variant">AI semantic engine pilot partner rollout</p>
+                          <div className="flex items-center gap-3 pt-1 text-xs font-label-md text-on-surface-variant">
+                            <span>T-minus 21 days</span>
+                            <span>&bull;</span>
+                            <span className="text-amber-800 font-semibold">Pending Validation</span>
+                          </div>
+                        </div>
+
+                        {/* Milestone 3 */}
+                        <div className="pt-3 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-on-surface text-[15px]">Security Audit Signing</span>
+                            <span className="font-label-md text-label-md text-on-surface font-semibold">Sep 12</span>
+                          </div>
+                          <p className="font-body-sm text-body-sm text-on-surface-variant">SOC-2 Type II auditor final signoff</p>
+                          <div className="flex items-center gap-3 pt-1 text-xs font-label-md text-on-surface-variant">
+                            <span>T-minus 31 days</span>
+                            <span>&bull;</span>
+                            <span className="text-emerald-700 font-semibold">91% Prepared</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card B: Sprint Velocity & Burndown */}
+                    <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-sm space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">Sprint Velocity</h3>
+                          <p className="font-body-sm text-body-sm text-on-surface-variant">Cycle delivery trend</p>
+                        </div>
+                        <span className="text-emerald-700 font-semibold font-label-md text-label-md bg-emerald-50 px-2.5 py-1 rounded-full">
+                          +12% Surge
+                        </span>
+                      </div>
+                      <div className="pt-2">
+                        <div className="flex items-center justify-between text-xs font-label-md text-on-surface-variant mb-3">
+                          <div className="flex items-center gap-3">
+                            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-primary-container inline-block"></span>Completed</span>
+                            <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-surface-dim inline-block"></span>Planned</span>
+                          </div>
+                          <span className="font-semibold text-on-surface">94 pts/wk</span>
+                        </div>
+                        <svg className="w-full h-28" preserveAspectRatio="none" viewBox="0 0 300 100">
+                          <line stroke="#eceef0" strokeWidth="1" x1="0" x2="300" y1="20" y2="20"></line>
+                          <line stroke="#eceef0" strokeWidth="1" x1="0" x2="300" y1="60" y2="60"></line>
+                          <line stroke="#eceef0" strokeWidth="1" x1="0" x2="300" y1="90" y2="90"></line>
+                          {/* Cycle 11 */}
+                          <rect fill="#d8dadc" height="45" rx="2" width="14" x="25" y="45"></rect>
+                          <rect fill="#3730a3" height="42" rx="2" width="14" x="43" y="48"></rect>
+                          {/* Cycle 12 */}
+                          <rect fill="#d8dadc" height="52" rx="2" width="14" x="95" y="38"></rect>
+                          <rect fill="#3730a3" height="56" rx="2" width="14" x="113" y="34"></rect>
+                          {/* Cycle 13 */}
+                          <rect fill="#d8dadc" height="60" rx="2" width="14" x="165" y="30"></rect>
+                          <rect fill="#3730a3" height="64" rx="2" width="14" x="183" y="26"></rect>
+                          {/* Cycle 14 */}
+                          <rect fill="#d8dadc" height="65" rx="2" width="14" x="235" y="25"></rect>
+                          <rect fill="#fd8a42" height="68" rx="2" width="14" x="253" y="22"></rect>
+                        </svg>
+                        <div className="flex justify-between items-center text-[11px] font-label-md text-on-surface-variant pt-2 px-1">
+                          <span>Cycle 11</span>
+                          <span>Cycle 12</span>
+                          <span>Cycle 13</span>
+                          <span className="font-bold text-on-surface">Cycle 14 (Now)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card C: Recent Activity & Governance */}
+                    <div className="bg-surface-container-lowest rounded-2xl p-6 shadow-sm space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="material-symbols-outlined text-primary text-[20px]">history</span>
+                          <h3 className="font-headline-sm text-headline-sm text-on-surface font-semibold">Governance Activity</h3>
+                        </div>
+                        <button className="text-primary hover:underline text-xs font-label-md font-semibold" type="button">View All</button>
+                      </div>
+                      <div className="divide-y divide-surface-container text-body-sm font-body-sm space-y-3 pt-1">
+                        {/* Item 1 */}
+                        <div className="pt-3 first:pt-0 space-y-1">
+                          <p className="text-on-surface leading-snug">
+                            <strong className="font-semibold">Elena Vance</strong> approved scope expansion for <span className="text-primary font-medium">AI Semantic Search</span>
+                          </p>
+                          <div className="flex items-center gap-2 text-[11px] text-on-surface-variant font-label-md">
+                            <span>14m ago</span>
+                            <span>&bull;</span>
+                            <span className="text-emerald-700 font-medium">Executive Signoff</span>
+                          </div>
+                        </div>
+                        {/* Item 2 */}
+                        <div className="pt-3 space-y-1">
+                          <p className="text-on-surface leading-snug">
+                            <strong className="font-semibold">PR #4892 merged</strong> into <code className="px-1 py-0.5 rounded bg-surface-container font-mono text-[11px]">release/core-v4.2</code>
+                          </p>
+                          <div className="flex items-center gap-2 text-[11px] text-on-surface-variant font-label-md">
+                            <span>1h ago by M. Chen</span>
+                          </div>
+                        </div>
+                        {/* Item 3 */}
+                        <div className="pt-3 space-y-1">
+                          <p className="text-on-surface leading-snug">
+                            <strong className="font-semibold">Schedule adjustment</strong> flagged on Billing Portal 2.0
+                          </p>
+                          <div className="flex items-center gap-2 text-[11px] text-on-surface-variant font-label-md">
+                            <span>3h ago</span>
+                            <span>&bull;</span>
+                            <span className="text-amber-800 font-medium">High Risk Triage</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -3287,7 +3509,7 @@ export default function DemoWorkspace() {
               </div>
             )}
           </div>
-        </div>
+        </main>
 
         {/* Bottom Status Bar matching Reference Status Bar */}
         <div className="h-9 flex items-center justify-between px-6 border-t border-slate-200 bg-white text-[11px] text-slate-400 shrink-0 select-none shadow-[0_-1px_2px_rgba(0,0,0,0.02)]">
@@ -3303,7 +3525,7 @@ export default function DemoWorkspace() {
             <span>INITIATIVE VAULT: 78.4 GB / 100 GB</span>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Card Detail Modal */}
       {selectedCardForDrawer && (

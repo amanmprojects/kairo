@@ -35,8 +35,55 @@ body {
   font-family: var(--font-serif);
   font-weight: 500;
   letter-spacing: -0.025em;
-  color: #0f172a;
+  color: #191c1e;
 }
+
+/* Design Tokens matching User Specification */
+.font-display-lg { font-family: "Newsreader", Georgia, serif; font-size: 44px; line-height: 52px; letter-spacing: -0.02em; font-weight: 400; }
+.font-headline-lg { font-family: "Newsreader", Georgia, serif; font-size: 32px; line-height: 40px; letter-spacing: -0.015em; font-weight: 500; }
+.font-headline-md { font-family: "Newsreader", Georgia, serif; font-size: 24px; line-height: 32px; letter-spacing: -0.01em; font-weight: 500; }
+.font-headline-sm { font-family: "Plus Jakarta Sans", sans-serif; font-size: 18px; line-height: 26px; letter-spacing: -0.005em; font-weight: 600; }
+.font-metric-display { font-family: "Newsreader", Georgia, serif; font-size: 36px; line-height: 42px; letter-spacing: -0.02em; font-weight: 500; }
+.font-label-lg { font-family: "Plus Jakarta Sans", sans-serif; font-size: 13px; line-height: 18px; letter-spacing: 0.02em; font-weight: 600; }
+.font-label-md { font-family: "Plus Jakarta Sans", sans-serif; font-size: 11px; line-height: 16px; letter-spacing: 0.04em; font-weight: 600; }
+.font-body-lg { font-family: "Plus Jakarta Sans", sans-serif; font-size: 16px; line-height: 26px; font-weight: 400; }
+.font-body-md { font-family: "Plus Jakarta Sans", sans-serif; font-size: 14px; line-height: 22px; font-weight: 400; }
+.font-body-sm { font-family: "Plus Jakarta Sans", sans-serif; font-size: 12px; line-height: 18px; font-weight: 400; }
+
+.bg-surface { background-color: #f7f9fb; }
+.bg-surface-bright { background-color: #f7f9fb; }
+.bg-surface-dim { background-color: #d8dadc; }
+.bg-surface-container-lowest { background-color: #ffffff; }
+.bg-surface-container-low { background-color: #f2f4f6; }
+.bg-surface-container { background-color: #eceef0; }
+.bg-surface-container-high { background-color: #e6e8ea; }
+.bg-surface-container-highest { background-color: #e0e3e5; }
+.bg-primary { background-color: #1f108e; }
+.bg-primary-container { background-color: #3730a3; }
+.bg-primary-fixed { background-color: #e2dfff; }
+.bg-secondary { background-color: #9b4500; }
+.bg-secondary-container { background-color: #fd8a42; }
+.bg-secondary-fixed { background-color: #ffdbca; }
+.bg-tertiary { background-color: #242c40; }
+.bg-tertiary-container { background-color: #3b4257; }
+.bg-tertiary-fixed { background-color: #dae2fd; }
+.bg-error { background-color: #ba1a1a; }
+.bg-error-container { background-color: #ffdad6; }
+
+.text-on-surface { color: #191c1e; }
+.text-on-surface-variant { color: #464553; }
+.text-primary { color: #1f108e; }
+.text-primary-container { color: #3730a3; }
+.text-on-primary { color: #ffffff; }
+.text-on-primary-fixed { color: #0f0069; }
+.text-secondary { color: #9b4500; }
+.text-on-secondary-fixed-variant { color: #763300; }
+.text-tertiary { color: #242c40; }
+.text-error { color: #ba1a1a; }
+.text-on-error-container { color: #93000a; }
+
+.border-surface-container { border-color: #eceef0; }
+.border-outline-variant { border-color: #c8c4d5; }
 
 /* Subtle clean scrollbars */
 ::-webkit-scrollbar {
