@@ -44,13 +44,27 @@ class Config:
 
 
 def load() -> Config:
-    base_url = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
-    api_key = _require("OPENAI_API_KEY", "add your key to .env (see .env.example)")
+    api_key = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise ConfigError(
+            "Neither OPENAI_API_KEY nor OPENROUTER_API_KEY is set in .env\n"
+            "  -> add your key to .env (see .env.example)"
+        )
+
+    default_base_url = (
+        "https://openrouter.ai/api/v1"
+        if os.getenv("OPENROUTER_API_KEY")
+        else "https://api.openai.com/v1"
+    )
+    base_url = os.getenv("OPENAI_BASE_URL", default_base_url)
 
     return Config(
         openai_base_url=base_url,
         openai_api_key=api_key,
-        openai_model=_require("OPENAI_MODEL", "e.g. OPENAI_MODEL=cohere/north-mini-code:free or gpt-4o-mini"),
+        openai_model=_require(
+            "OPENAI_MODEL",
+            "e.g. OPENAI_MODEL=cohere/north-mini-code:free or qwen/qwen3.8-27b:free",
+        ),
         embedding_model=os.getenv("EMBEDDING_MODEL", "text-embedding-3-small"),
         # Some proxies serve chat and embeddings from different endpoints; fall back to
         # the chat endpoint when they don't.
@@ -62,5 +76,5 @@ def load() -> Config:
         database_url=os.getenv(
             "DATABASE_URL", "postgresql://kairo:kairo@localhost:5433/kairo"
         ),
-        target_repo=os.getenv("TARGET_REPO", "fastapi/fastapi"),
+        target_repo=os.getenv("TARGET_REPO", "sharvarianand/kairo"),
     )
