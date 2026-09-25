@@ -49,36 +49,25 @@ Standard AI developer tools and Vector RAG (Retrieval-Augmented Generation) suff
 ## 🧠 System Architecture
 
 ```mermaid
-%%{init: {
-  'theme': 'base',
-  'themeVariables': {
-    'primaryColor': '#09090b',
-    'primaryBorderColor': '#14b8a6',
-    'primaryTextColor': '#ffffff',
-    'lineColor': '#14b8a6',
-    'clusterBkg': 'transparent',
-    'clusterBorder': '#14b8a6'
-  }
-}}%%
 graph TD
-    subgraph "Data Ingestion Pipeline"
+    subgraph Ingestion ["Data Ingestion Pipeline"]
         GitHub["GitHub API (REST + GraphQL)"] --> |Timeline Events| IngestEngine["Rate-Limited Ingestion Engine"]
         IngestEngine --> LLM["LLM Decision Extractor"]
     end
 
-    subgraph "Bitemporal Knowledge Graph (PostgreSQL)"
+    subgraph Database ["Bitemporal Knowledge Graph (PostgreSQL)"]
         IngestEngine --> L1[("Layer 1: Deterministic Facts")]
         LLM --> L2[("Layer 2: Interpreted Decisions")]
         L1 -.-> |Provenance Links| L2
     end
 
-    subgraph "Three-Mode GraphRAG"
+    subgraph GraphRAG ["Three-Mode GraphRAG"]
         L1 --> Anchored["Anchored Walk"]
         L2 --> AsOf["As-Of Filter"]
         L2 --> Semantic["Semantic pgvector"]
     end
 
-    subgraph "Engineering Workspace"
+    subgraph Workspace ["Engineering Workspace"]
         Anchored --> FastAPI["FastAPI Backend"]
         AsOf --> FastAPI
         Semantic --> FastAPI
@@ -89,19 +78,6 @@ graph TD
 ## 🔄 User & Data Flow
 
 ```mermaid
-%%{init: {
-  'theme': 'base',
-  'themeVariables': {
-    'actorBkg': '#09090b',
-    'actorBorder': '#14b8a6',
-    'actorTextColor': '#ffffff',
-    'signalColor': '#14b8a6',
-    'signalTextColor': '#ffffff',
-    'noteBkg': '#14b8a6',
-    'noteTextColor': '#000000',
-    'noteBorderColor': '#14b8a6'
-  }
-}}%%
 sequenceDiagram
     participant Engineer as Software Engineer
     participant UI as Next.js Dashboard
@@ -112,7 +88,7 @@ sequenceDiagram
     Engineer->>UI: "Why did we switch to JWT in auth.py?"
     UI->>API: Submit Query
     
-    Note over API: Detect Intent: File Anchor
+    Note over API: Detect Intent - File Anchor
     API->>DB: Execute Recursive CTE from "auth.py"
     DB-->>API: Return [Commits] -> [PRs] -> [Decisions]
     
