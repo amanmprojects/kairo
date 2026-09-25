@@ -111,6 +111,14 @@ export default function JudgeAutoTour({
   const currentStep = JUDGE_STEPS[currentStepIndex];
 
   useEffect(() => {
+    if (isOpen) {
+      setCurrentStepIndex(0);
+      setProgress(0);
+      setIsPlaying(true);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     if (!isOpen) return;
 
     let startTime = Date.now();
