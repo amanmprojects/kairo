@@ -14,7 +14,7 @@ from pydantic import BaseModel, Field
 
 from fastapi.middleware.cors import CORSMiddleware
 
-from . import db, graphrag, insights
+from . import db, graphrag, insights, config
 
 app = FastAPI(title="KAIRO", version="0.1.0", description="Decision-aware engineering workspace")
 
@@ -98,6 +98,59 @@ class AuthRequest(BaseModel):
 @app.post("/auth/github")
 def auth_github(request: AuthRequest) -> dict:
     return {"token": "dummy-jwt-token", "user": {"id": 1, "login": "testuser"}}
+
+class GitHubConnectRequest(BaseModel):
+    token: str = Field(min_length=1)
+    target_repo: str = "sharvarianand/kairo"
+
+@app.post("/api/github/connect")
+def connect_github(request: GitHubConnectRequest) -> dict:
+    import httpx
+    import re
+
+    headers = {
+        "Authorization": f"Bearer {request.token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    try:
+        with httpx.Client(timeout=10.0) as client:
+            user_resp = client.get("https://api.github.com/user", headers=headers)
+            if user_resp.status_code != 200:
+                raise HTTPException(400, "Invalid GitHub token or insufficient permissions")
+            user_data = user_resp.json()
+
+            repo_resp = client.get(f"https://api.github.com/repos/{request.target_repo}", headers=headers)
+            repo_data = repo_resp.json() if repo_resp.status_code == 200 else {}
+            rate_limit = user_resp.headers.get("x-ratelimit-remaining", "5000")
+
+        # Save to .env so CLI, services, and ingest have it
+        env_path = config.ROOT / ".env"
+        if env_path.exists():
+            content = env_path.read_text(encoding="utf-8")
+            if "GITHUB_TOKEN=" in content:
+                content = re.sub(r"GITHUB_TOKEN=.*", f"GITHUB_TOKEN={request.token}", content)
+            else:
+                content += f"\nGITHUB_TOKEN={request.token}\n"
+            if "TARGET_REPO=" in content:
+                content = re.sub(r"TARGET_REPO=.*", f"TARGET_REPO={request.target_repo}", content)
+            else:
+                content += f"\nTARGET_REPO={request.target_repo}\n"
+            env_path.write_text(content, encoding="utf-8")
+
+        return {
+            "status": "connected",
+            "user": user_data.get("login"),
+            "name": user_data.get("name") or user_data.get("login"),
+            "avatar_url": user_data.get("avatar_url"),
+            "rate_limit_remaining": rate_limit,
+            "target_repo": request.target_repo,
+            "repo_stars": repo_data.get("stargazers_count", 0),
+        }
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(400, f"GitHub connection failed: {exc}")
 
 @app.post("/repositories/{repo_id}/ingest")
 def ingest_repo(repo_id: int, background_tasks: BackgroundTasks) -> dict:

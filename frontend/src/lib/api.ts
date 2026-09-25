@@ -139,6 +139,25 @@ export const kairoApi = {
   },
 
   // 7. GitHub OAuth & Ingestion
+  connectGitHub: async (token: string, targetRepo: string = "sharvarianand/kairo") => {
+    return fetchWithFallback(
+      "/api/github/connect",
+      {
+        method: "POST",
+        body: JSON.stringify({ token, target_repo: targetRepo }),
+      },
+      {
+        status: "connected",
+        user: "sharvarianand",
+        name: "Sharvari Bhondekar",
+        avatar_url: "https://avatars.githubusercontent.com/u/1000000?v=4",
+        rate_limit_remaining: "5000",
+        target_repo: targetRepo,
+        repo_stars: 12,
+      }
+    );
+  },
+
   authenticateGitHub: async (code: string) => {
     return fetchWithFallback(
       "/auth/github",
