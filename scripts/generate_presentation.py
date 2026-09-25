@@ -1,1090 +1,470 @@
-"""Generate the official KAIRO Project Purpose presentation - premium visual theme."""
+"""
+KAIRO - Clean SaaS Presentation Generator (Light Theme)
+Matches the clean white/navy/teal aesthetic of the KAIRO landing page.
+"""
 
 from pathlib import Path
 import pptx
-from pptx.util import Inches, Pt, Emu
+from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
-from pptx.oxml.ns import qn
-from lxml import etree
 
 OUTPUT_FILE = Path("KAIRO_Project_Purpose_Presentation.pptx")
 
-# ─── Brand Palette ──────────────────────────────────────────────────────────
-BG_DARK        = RGBColor(0x0B, 0x11, 0x20)  # #0B1120  deep navy
-BG_MID         = RGBColor(0x0F, 0x17, 0x2A)  # #0F172A  slightly lighter
-CARD_BG        = RGBColor(0x11, 0x18, 0x27)  # #111827
-CARD_BG2       = RGBColor(0x16, 0x21, 0x3A)  # #16213A  card alt
-CARD_BORDER    = RGBColor(0x1E, 0x29, 0x3B)  # #1E293B
-TEAL_PRIMARY   = RGBColor(0x14, 0xB8, 0xA6)  # #14B8A6
-TEAL_LIGHT     = RGBColor(0x2D, 0xD4, 0xBF)  # #2DD4BF
-CYAN_ACCENT    = RGBColor(0x38, 0xBD, 0xF8)  # #38BDF8
-TEXT_WHITE     = RGBColor(0xF8, 0xFA, 0xFC)  # #F8FAFC
-TEXT_MUTED     = RGBColor(0x94, 0xA3, 0xB8)  # #94A3B8
-TEXT_DIM       = RGBColor(0x64, 0x74, 0x8B)  # #64748B
-AMBER_ALERT    = RGBColor(0xF5, 0x9E, 0x0B)  # #F59E0B
-GREEN_SUCCESS  = RGBColor(0x10, 0xB9, 0x81)  # #10B981
-PURPLE_ACCENT  = RGBColor(0x63, 0x66, 0xF1)  # #6366F1
-ROSE_ACCENT    = RGBColor(0xF4, 0x3F, 0x5E)  # #F43F5E
-SLATE_LINE     = RGBColor(0x1E, 0x29, 0x3B)  # separator colour
-OVERLAY_DARK   = RGBColor(0x07, 0x0D, 0x1A)  # deep corner
+# ── Clean Light Theme Palette ─────────────────────────────────────────────────
+BG_MAIN     = RGBColor(0xFF, 0xFF, 0xFF)   # #FFFFFF Clean White
+BG_ALT      = RGBColor(0xF8, 0xFA, 0xFC)   # #F8FAFC Slate 50 (light grey)
+TEXT_DARK   = RGBColor(0x0F, 0x17, 0x2A)   # #0F172A Slate 900 (almost black)
+TEXT_MUTED  = RGBColor(0x47, 0x55, 0x69)   # #475569 Slate 600 (grey)
+BORDER      = RGBColor(0xE2, 0xE8, 0xF0)   # #E2E8F0 Slate 200
+TEAL        = RGBColor(0x14, 0xB8, 0xA6)   # #14B8A6 Brand Teal
+TEAL_LIGHT  = RGBColor(0x99, 0xF6, 0xE4)   # #99F6E4 Light Teal
+NAVY_BRAND  = RGBColor(0x0B, 0x11, 0x20)   # #0B1120 Logo Navy
+CYAN        = RGBColor(0x0E, 0xA5, 0xE9)   # #0EA5E9 Sky Blue
+AMBER       = RGBColor(0xF5, 0x9E, 0x0B)   # #F59E0B Warning
+ROSE        = RGBColor(0xE1, 0x1D, 0x48)   # #E11D48 Red/Rose
+GREEN       = RGBColor(0x10, 0xB9, 0x81)   # #10B981 Success
+PURPLE      = RGBColor(0x63, 0x66, 0xF1)   # #6366F1 Indigo
 
+SW = Inches(13.333)
+SH = Inches(7.5)
+FONT_NAME = 'Segoe UI'
+
+# ── Shape helpers ─────────────────────────────────────────────────────────────
 
 def _no_line(shape):
-    """Remove shape outline completely."""
     shape.line.fill.background()
 
-
-def _solid(shape, rgb: RGBColor):
-    shape.fill.solid()
-    shape.fill.fore_color.rgb = rgb
-
-
-# ─── Slide decoration helpers ────────────────────────────────────────────────
-
-def set_bg(slide, prs):
-    """Dark base + two layered overlay rectangles for a gradient-like depth effect."""
-    # Base fill
-    bg = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, prs.slide_width, prs.slide_height)
-    _solid(bg, BG_DARK)
-    _no_line(bg)
-
-    # Top-left lighter vignette
-    vl = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE, 0, 0, Inches(6.5), Inches(4.0)
-    )
-    _solid(vl, BG_MID)
-    _no_line(vl)
-    vl.fill.fore_color.rgb = BG_MID
-    # simulate transparency by using a very dark colour, not true alpha
-    vl.fill.solid()
-    vl.fill.fore_color.rgb = RGBColor(0x10, 0x1B, 0x32)
-    _no_line(vl)
-
-    # Bottom-right darker corner
-    vr = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE,
-        Inches(7.5), Inches(3.5), Inches(5.9), Inches(4.0)
-    )
-    _solid(vr, OVERLAY_DARK)
-    _no_line(vr)
-
-
-def add_decorative_accents(slide, prs):
-    """Add three tiny teal/cyan corner accent rectangles for visual energy."""
-    # Top-right teal corner streak
-    a1 = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE,
-        prs.slide_width - Inches(2.2), 0,
-        Inches(2.2), Pt(4)
-    )
-    _solid(a1, TEAL_PRIMARY)
-    _no_line(a1)
-
-    a2 = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE,
-        prs.slide_width - Inches(1.1), 0,
-        Inches(1.1), Pt(9)
-    )
-    _solid(a2, TEAL_LIGHT)
-    _no_line(a2)
-
-    # Bottom-left cyan streak
-    a3 = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE,
-        0, prs.slide_height - Pt(4),
-        Inches(1.8), Pt(4)
-    )
-    _solid(a3, CYAN_ACCENT)
-    _no_line(a3)
-
-    a4 = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE,
-        0, prs.slide_height - Pt(10),
-        Inches(0.8), Pt(6)
-    )
-    _solid(a4, TEAL_PRIMARY)
-    _no_line(a4)
-
-
-def add_separator(slide, y_inches, width_inches=11.72, x_inches=0.8, color=None):
-    """Add a thin horizontal rule."""
-    if color is None:
-        color = SLATE_LINE
-    sep = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE,
-        Inches(x_inches), Inches(y_inches),
-        Inches(width_inches), Pt(1)
-    )
-    _solid(sep, color)
-    _no_line(sep)
-
-
-def add_icon_circle(slide, cx, cy, radius, bg_color, label, label_color=None):
-    """Draw a small filled circle with a short text label inside."""
-    if label_color is None:
-        label_color = TEXT_WHITE
-    circle = slide.shapes.add_shape(
-        MSO_SHAPE.OVAL,
-        cx - radius, cy - radius, radius * 2, radius * 2
-    )
-    _solid(circle, bg_color)
-    _no_line(circle)
-    tf = circle.text_frame
-    tf.word_wrap = False
-    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
-    p = tf.paragraphs[0]
-    p.text = label
-    p.font.size = Pt(11)
-    p.font.bold = True
-    p.font.color.rgb = label_color
-    p.alignment = PP_ALIGN.CENTER
-
-
-def add_pill(slide, left, top, width, height, text, bg, text_color, border=None, font_size=9):
-    """Rounded pill badge."""
-    pill = slide.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE,
-        left, top, width, height
-    )
-    _solid(pill, bg)
-    if border:
-        pill.line.color.rgb = border
-        pill.line.width = Pt(1)
+def rect(slide, l, t, w, h, bg_color, line_color=None, line_pt=1):
+    s = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, l, t, w, h)
+    s.fill.solid()
+    s.fill.fore_color.rgb = bg_color
+    if line_color:
+        s.line.color.rgb = line_color
+        s.line.width = Pt(line_pt)
     else:
-        _no_line(pill)
-    tf = pill.text_frame
-    tf.word_wrap = False
-    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+        _no_line(s)
+    return s
+
+def rrect(slide, l, t, w, h, bg_color, line_color=None, line_pt=1):
+    s = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, l, t, w, h)
+    s.fill.solid()
+    s.fill.fore_color.rgb = bg_color
+    if line_color:
+        s.line.color.rgb = line_color
+        s.line.width = Pt(line_pt)
+    else:
+        _no_line(s)
+    return s
+
+def tbox(slide, l, t, w, h, text, size, bold=False, color=TEXT_DARK, align=PP_ALIGN.LEFT):
+    tb = slide.shapes.add_textbox(l, t, w, h)
+    tf = tb.text_frame
+    tf.word_wrap = True
+    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = Inches(0.05)
     p = tf.paragraphs[0]
     p.text = text
-    p.font.size = Pt(font_size)
-    p.font.bold = True
-    p.font.color.rgb = text_color
-    p.alignment = PP_ALIGN.CENTER
-
-
-def add_footer(slide, current_idx: int, total_slides: int):
-    """Slim footer with KAIRO brand name + slide number."""
-    # Footer separator line
-    sep = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE, Inches(0.8), Inches(7.02), Inches(11.72), Pt(1)
-    )
-    _solid(sep, SLATE_LINE)
-    _no_line(sep)
-
-    # Footer text
-    fb = slide.shapes.add_textbox(Inches(0.8), Inches(7.08), Inches(11.72), Inches(0.35))
-    tf = fb.text_frame
-    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
-    p = tf.paragraphs[0]
-    p.text = (
-        f"KAIRO  |  Temporal Knowledge Graph Engineering Intelligence Platform  "
-        f"|  Slide {current_idx} / {total_slides}"
-    )
-    p.font.size = Pt(8)
-    p.font.color.rgb = TEXT_DIM
-
-
-def add_section_header(slide, title, category_text, subtitle="", category_color=None):
-    """Polished slide header: category pill + bold title + muted subtitle."""
-    if category_color is None:
-        category_color = TEAL_LIGHT
-
-    # Category pill
-    add_pill(
-        slide,
-        Inches(0.8), Inches(0.55),
-        Inches(2.9), Inches(0.30),
-        category_text.upper(),
-        RGBColor(0x0B, 0x24, 0x2E),  # very dark teal bg
-        category_color,
-        border=TEAL_PRIMARY,
-        font_size=8
-    )
-
-    # Title
-    tb = slide.shapes.add_textbox(Inches(0.8), Inches(0.92), Inches(11.72), Inches(0.65))
-    tf = tb.text_frame
-    tf.word_wrap = True
-    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
-    p = tf.paragraphs[0]
-    p.text = title
-    p.font.size = Pt(26)
-    p.font.bold = True
-    p.font.color.rgb = TEXT_WHITE
-
-    if subtitle:
-        tb2 = slide.shapes.add_textbox(Inches(0.8), Inches(1.57), Inches(11.72), Inches(0.38))
-        tf2 = tb2.text_frame
-        tf2.word_wrap = True
-        tf2.margin_left = tf2.margin_right = tf2.margin_top = tf2.margin_bottom = 0
-        p2 = tf2.paragraphs[0]
-        p2.text = subtitle
-        p2.font.size = Pt(12)
-        p2.font.color.rgb = TEXT_MUTED
-
-    # Underline separator after header
-    add_separator(slide, 2.0)
-
-
-# ─── Card Primitives ─────────────────────────────────────────────────────────
-
-def add_card(slide, left, top, width, height,
-             title, items, accent=None, tag=None,
-             title_size=13, item_size=10):
-    """Dark rounded card with colored top accent bar, title, tag, and bullet list."""
-    if accent is None:
-        accent = TEAL_LIGHT
-
-    # Card background
-    card = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, height)
-    _solid(card, CARD_BG)
-    card.line.color.rgb = CARD_BORDER
-    card.line.width = Pt(0.75)
-
-    # Colored top accent bar (full width, thin)
-    bar = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE,
-        left + Pt(6), top + Pt(6),
-        width - Pt(12), Pt(3)
-    )
-    _solid(bar, accent)
-    _no_line(bar)
-
-    # Text content
-    pad = Inches(0.22)
-    tb = slide.shapes.add_textbox(left + pad, top + Inches(0.2), width - pad * 2, height - Inches(0.3))
-    tf = tb.text_frame
-    tf.word_wrap = True
-    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
-
-    # Tag (optional small label)
-    if tag:
-        p_tag = tf.paragraphs[0]
-        p_tag.text = tag.upper()
-        p_tag.font.size = Pt(7.5)
-        p_tag.font.bold = True
-        p_tag.font.color.rgb = accent
-        p_tag.space_after = Pt(3)
-        p_title = tf.add_paragraph()
-    else:
-        p_title = tf.paragraphs[0]
-
-    p_title.text = title
-    p_title.font.size = Pt(title_size)
-    p_title.font.bold = True
-    p_title.font.color.rgb = TEXT_WHITE
-    p_title.space_after = Pt(6)
-
-    # Divider (blank line spacer)
-    p_div = tf.add_paragraph()
-    p_div.text = ""
-    p_div.space_after = Pt(2)
-
-    for item in items:
-        p = tf.add_paragraph()
-        p.text = f"  {item}"
-        p.font.size = Pt(item_size)
-        p.font.color.rgb = TEXT_MUTED
-        p.space_after = Pt(4)
-
-
-def add_stat_card(slide, left, top, width, height,
-                  value, label, subtext, color=None):
-    """Large KPI stat card with accent-coloured big number."""
-    if color is None:
-        color = TEAL_LIGHT
-
-    card = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, height)
-    _solid(card, CARD_BG2)
-    card.line.color.rgb = color
-    card.line.width = Pt(1.2)
-
-    # Bottom accent strip
-    strip = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE,
-        left + Pt(6), top + height - Pt(5),
-        width - Pt(12), Pt(4)
-    )
-    _solid(strip, color)
-    _no_line(strip)
-
-    pad = Inches(0.22)
-    tb = slide.shapes.add_textbox(left + pad, top + Inches(0.18), width - pad * 2, height - Inches(0.4))
-    tf = tb.text_frame
-    tf.word_wrap = True
-    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
-
-    p_val = tf.paragraphs[0]
-    p_val.text = value
-    p_val.font.size = Pt(34)
-    p_val.font.bold = True
-    p_val.font.color.rgb = color
-
-    p_lbl = tf.add_paragraph()
-    p_lbl.text = label
-    p_lbl.font.size = Pt(12)
-    p_lbl.font.bold = True
-    p_lbl.font.color.rgb = TEXT_WHITE
-    p_lbl.space_after = Pt(5)
-
-    p_sub = tf.add_paragraph()
-    p_sub.text = subtext
-    p_sub.font.size = Pt(9.5)
-    p_sub.font.color.rgb = TEXT_MUTED
-
-
-def add_step_row(slide, steps, top, row_height=Inches(1.8)):
-    """Horizontal numbered step row with connecting chevron-like dividers."""
-    n = len(steps)
-    slide_w = Inches(13.333)
-    margin = Inches(0.8)
-    gap = Inches(0.15)
-    card_w = (slide_w - margin * 2 - gap * (n - 1)) / n
-
-    for i, (num, title, body, accent) in enumerate(steps):
-        left = margin + i * (card_w + gap)
-
-        # Card
-        card = slide.shapes.add_shape(
-            MSO_SHAPE.ROUNDED_RECTANGLE, left, top, card_w, row_height
-        )
-        _solid(card, CARD_BG)
-        card.line.color.rgb = CARD_BORDER
-        card.line.width = Pt(0.75)
-
-        # Number circle (left inside)
-        add_icon_circle(
-            slide,
-            left + Inches(0.38), top + row_height / 2,
-            Inches(0.28),
-            accent,
-            str(num),
-            TEXT_WHITE
-        )
-
-        # Text to right of circle
-        tx = left + Inches(0.78)
-        tw = card_w - Inches(0.9)
-        tb = slide.shapes.add_textbox(tx, top + Inches(0.15), tw, row_height - Inches(0.3))
-        tf = tb.text_frame
-        tf.word_wrap = True
-        tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
-
-        p_t = tf.paragraphs[0]
-        p_t.text = title
-        p_t.font.size = Pt(11.5)
-        p_t.font.bold = True
-        p_t.font.color.rgb = TEXT_WHITE
-        p_t.space_after = Pt(4)
-
-        p_b = tf.add_paragraph()
-        p_b.text = body
-        p_b.font.size = Pt(9.5)
-        p_b.font.color.rgb = TEXT_MUTED
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# SLIDE BUILDERS
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def build_slide_1_title(prs, blank_layout):
-    """Title slide: large hero text, metadata card, decorative elements."""
-    s = prs.slides.add_slide(blank_layout)
-    set_bg(s, prs)
-    add_decorative_accents(s, prs)
-
-    # Left vertical teal stripe accent
-    vstripe = s.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE, Inches(0.5), Inches(1.5), Pt(4), Inches(4.5)
-    )
-    _solid(vstripe, TEAL_PRIMARY)
-    _no_line(vstripe)
-
-    # Category pill top
-    add_pill(
-        s, Inches(0.8), Inches(1.6), Inches(3.8), Inches(0.33),
-        "ENGINEERING INTELLIGENCE PLATFORM",
-        RGBColor(0x07, 0x1F, 0x2A), TEAL_LIGHT,
-        border=TEAL_PRIMARY, font_size=8.5
-    )
-
-    # KAIRO big wordmark
-    tb_k = s.shapes.add_textbox(Inches(0.8), Inches(2.05), Inches(8.5), Inches(1.35))
-    tf_k = tb_k.text_frame
-    tf_k.word_wrap = False
-    tf_k.margin_left = tf_k.margin_right = tf_k.margin_top = tf_k.margin_bottom = 0
-    p_k = tf_k.paragraphs[0]
-    p_k.text = "KAIRO"
-    p_k.font.size = Pt(72)
-    p_k.font.bold = True
-    p_k.font.color.rgb = TEXT_WHITE
-
-    # Subtitle line
-    tb_sub = s.shapes.add_textbox(Inches(0.8), Inches(3.5), Inches(9.5), Inches(0.52))
-    tf_sub = tb_sub.text_frame
-    tf_sub.word_wrap = True
-    tf_sub.margin_left = tf_sub.margin_right = tf_sub.margin_top = tf_sub.margin_bottom = 0
-    p_sub = tf_sub.paragraphs[0]
-    p_sub.text = "A Temporal Knowledge Graph Based Engineering Intelligence Platform"
-    p_sub.font.size = Pt(17)
-    p_sub.font.bold = False
-    p_sub.font.color.rgb = TEAL_LIGHT
-
-    # Purpose line
-    tb_p = s.shapes.add_textbox(Inches(0.8), Inches(4.1), Inches(9.5), Inches(0.55))
-    tf_p = tb_p.text_frame
-    tf_p.word_wrap = True
-    tf_p.margin_left = tf_p.margin_right = tf_p.margin_top = tf_p.margin_bottom = 0
-    p_pu = tf_p.paragraphs[0]
-    p_pu.text = (
-        "Reconstructing and preserving architectural memory across commits, "
-        "pull requests, and design decisions to eliminate undocumented decision drift."
-    )
-    p_pu.font.size = Pt(11.5)
-    p_pu.font.color.rgb = TEXT_MUTED
-
-    # Right-side teal glow circle (decorative)
-    glow = s.shapes.add_shape(
-        MSO_SHAPE.OVAL,
-        Inches(10.5), Inches(0.8),
-        Inches(2.6), Inches(2.6)
-    )
-    _solid(glow, RGBColor(0x0D, 0x2B, 0x28))
-    _no_line(glow)
-
-    glow2 = s.shapes.add_shape(
-        MSO_SHAPE.OVAL,
-        Inches(10.9), Inches(1.2),
-        Inches(1.8), Inches(1.8)
-    )
-    _solid(glow2, RGBColor(0x11, 0x40, 0x3B))
-    _no_line(glow2)
-
-    tb_logo = s.shapes.add_textbox(Inches(10.9), Inches(1.2), Inches(1.8), Inches(1.8))
-    tf_logo = tb_logo.text_frame
-    tf_logo.word_wrap = False
-    tf_logo.margin_left = tf_logo.margin_right = tf_logo.margin_top = tf_logo.margin_bottom = 0
-    p_logo = tf_logo.paragraphs[0]
-    p_logo.text = "K"
-    p_logo.font.size = Pt(54)
-    p_logo.font.bold = True
-    p_logo.font.color.rgb = TEAL_LIGHT
-    p_logo.alignment = PP_ALIGN.CENTER
-
-    # Separator before metadata
-    add_separator(s, 4.78, color=TEAL_PRIMARY)
-
-    # Metadata block
-    meta = s.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE,
-        Inches(0.8), Inches(4.9), Inches(11.72), Inches(1.75)
-    )
-    _solid(meta, CARD_BG)
-    meta.line.color.rgb = CARD_BORDER
-    meta.line.width = Pt(0.75)
-
-    tf_m = meta.text_frame
-    tf_m.word_wrap = True
-    tf_m.margin_left = tf_m.margin_right = tf_m.margin_top = tf_m.margin_bottom = Inches(0.2)
-
-    p_m1 = tf_m.paragraphs[0]
-    p_m1.text = "Team:  Sharvari Bhondekar   |   Aman Mehtar   |   Shruti Gauchandra"
-    p_m1.font.size = Pt(12.5)
-    p_m1.font.bold = True
-    p_m1.font.color.rgb = TEXT_WHITE
-
-    p_m2 = tf_m.add_paragraph()
-    p_m2.text = "Mentors:  Prof. Kranti Gule   |   Dr. Tatwadarshi P. Nagarhalli (HOD)"
-    p_m2.font.size = Pt(11)
-    p_m2.font.color.rgb = CYAN_ACCENT
-    p_m2.space_before = Pt(5)
-
-    p_m3 = tf_m.add_paragraph()
-    p_m3.text = (
-        "Department of Artificial Intelligence & Data Science  |  "
-        "Vidyavardhini's College of Engineering and Technology (VCET)"
-    )
-    p_m3.font.size = Pt(10)
-    p_m3.font.color.rgb = TEXT_MUTED
-    p_m3.space_before = Pt(5)
-
-    add_footer(s, 1, 10)
-    return s
-
-
-def build_slide_2_problem(prs, blank_layout):
-    """3-column problem statement slide."""
-    s = prs.slides.add_slide(blank_layout)
-    set_bg(s, prs)
-    add_decorative_accents(s, prs)
-    add_section_header(
-        s,
-        "The Critical Problem: Engineering Memory Vaporization",
-        "Industry Challenge",
-        "Why modern software engineering teams lose architectural context over time",
-        category_color=ROSE_ACCENT
-    )
-
-    COL_W = Inches(3.64)
-    COL_TOP = Inches(2.12)
-    COL_H = Inches(4.6)
-
-    add_card(s, Inches(0.8),  COL_TOP, COL_W, COL_H,
-        "Tool Fragmentation",
-        [
-            "Teams use fragmented tools: GitHub, Jira, Slack, wikis, PR threads.",
-            "These systems track task status but never preserve why decisions were made.",
-            "When original engineers leave, critical institutional memory vanishes.",
-            "New engineers inherit codebases with zero verifiable context on trade-offs.",
-        ],
-        accent=PURPLE_ACCENT, tag="Siloed Information",
-        title_size=13, item_size=10)
-
-    add_card(s, Inches(4.84), COL_TOP, COL_W, COL_H,
-        "Invisible Decision Drift",
-        [
-            "Documented architecture and live codebases continuously drift apart.",
-            "Pull requests inadvertently violate foundational architectural decisions (ADRs).",
-            "Technical debt accumulates silently until massive regressions occur.",
-            "No objective mathematical index exists to measure architectural drift.",
-        ],
-        accent=AMBER_ALERT, tag="Silent Divergence",
-        title_size=13, item_size=10)
-
-    add_card(s, Inches(8.88), COL_TOP, COL_W, COL_H,
-        "Temporal Blindness in AI",
-        [
-            "Standard Vector RAG retrieves code snippets by keyword similarity alone.",
-            "Cannot distinguish an active architectural rule from a superseded 2021 choice.",
-            "AI dev tools recommend obsolete practices as authoritative standards.",
-            "Missing bitemporal intervals create high risk in AI-assisted coding.",
-        ],
-        accent=ROSE_ACCENT, tag="RAG Limitation",
-        title_size=13, item_size=10)
-
-    add_footer(s, 2, 10)
-    return s
-
-
-def build_slide_3_purpose(prs, blank_layout):
-    """Project purpose slide with mission banner + 3-pillar cards."""
-    s = prs.slides.add_slide(blank_layout)
-    set_bg(s, prs)
-    add_decorative_accents(s, prs)
-    add_section_header(
-        s,
-        "Project Purpose: Why KAIRO Exists",
-        "Core Mission",
-        "Building an authoritative, bitemporal engineering knowledge graph for software reasoning",
-        category_color=TEAL_LIGHT
-    )
-
-    # Mission banner (teal filled)
-    banner = s.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE,
-        Inches(0.8), Inches(2.1), Inches(11.72), Inches(1.05)
-    )
-    _solid(banner, RGBColor(0x0D, 0x3B, 0x38))
-    banner.line.color.rgb = TEAL_PRIMARY
-    banner.line.width = Pt(1)
-
-    # Left accent stripe on banner
-    bstripe = s.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE,
-        Inches(0.8), Inches(2.1), Pt(4), Inches(1.05)
-    )
-    _solid(bstripe, TEAL_PRIMARY)
-    _no_line(bstripe)
-
-    tf_b = banner.text_frame
-    tf_b.word_wrap = True
-    tf_b.margin_left = Inches(0.3)
-    tf_b.margin_right = Inches(0.2)
-    tf_b.margin_top = tf_b.margin_bottom = Inches(0.12)
-    p_b1 = tf_b.paragraphs[0]
-    p_b1.text = "Mission Statement:"
-    p_b1.font.size = Pt(9)
-    p_b1.font.bold = True
-    p_b1.font.color.rgb = TEAL_LIGHT
-    p_b2 = tf_b.add_paragraph()
-    p_b2.text = (
-        "Transform unstructured developer telemetry into an active, verifiable bitemporal knowledge graph - "
-        "enabling teams to query, track, and protect the architectural rationale of their codebases."
-    )
-    p_b2.font.size = Pt(13)
-    p_b2.font.bold = True
-    p_b2.font.color.rgb = TEXT_WHITE
-
-    # 3 pillar cards
-    COL_W = Inches(3.64)
-    COL_TOP = Inches(3.35)
-    COL_H = Inches(3.35)
-
-    add_card(s, Inches(0.8),  COL_TOP, COL_W, COL_H,
-        "Reconstruct Reasoning",
-        [
-            "Mine commits, PR discussions, code reviews, and issue threads.",
-            "Extract discrete architectural decisions with verbatim provenance quotes.",
-            "Enable natural-language queries: 'Why did we choose JWT over Redis sessions?'",
-        ],
-        accent=TEAL_LIGHT, tag="Cognitive Memory", item_size=10.5)
-
-    add_card(s, Inches(4.84), COL_TOP, COL_W, COL_H,
-        "Pre-Merge Interception",
-        [
-            "Scan modified files in pending pull requests against the knowledge graph.",
-            "Flag conflicts with documented architectural decisions before code merges.",
-            "Prevent regressions caused by developer rotation and forgotten standards.",
-        ],
-        accent=AMBER_ALERT, tag="Proactive Protection", item_size=10.5)
-
-    add_card(s, Inches(8.88), COL_TOP, COL_W, COL_H,
-        "Quantify Repository Health",
-        [
-            "Introduce mathematical metrics for architecture governance.",
-            "Decision Drift Index (DDI) measures codebase divergence from intent.",
-            "Engineering Evolution Score (EES) tracks stability, ownership, and risk.",
-        ],
-        accent=GREEN_SUCCESS, tag="Verifiable Governance", item_size=10.5)
-
-    add_footer(s, 3, 10)
-    return s
-
-
-def build_slide_4_two_layer(prs, blank_layout):
-    """Two-layer trust isolation architecture - 2-column wide cards."""
-    s = prs.slides.add_slide(blank_layout)
-    set_bg(s, prs)
-    add_decorative_accents(s, prs)
-    add_section_header(
-        s,
-        "Architectural Innovation: Two-Layer Trust Isolation",
-        "Zero-Hallucination Design",
-        "Separating verifiable deterministic code facts from LLM-interpreted architectural decisions",
-        category_color=CYAN_ACCENT
-    )
-
-    COL_TOP = Inches(2.12)
-    COL_H   = Inches(4.6)
-    COL_W   = Inches(5.65)
-
-    add_card(s, Inches(0.8), COL_TOP, COL_W, COL_H,
-        "Layer 1: Deterministic Fact Graph",
-        [
-            "Strictly factual engineering telemetry synced directly from GitHub APIs.",
-            "Entities: Repositories, Commits, Authors, Pull Requests, Files, Diffs.",
-            "Zero LLM involvement - guarantees 100% fidelity and zero hallucination risk.",
-            "Deterministic edge linking connects commits, authors, PRs, and files with precise timestamps.",
-            "Ground truth anchor for all downstream graph walks and impact predictions.",
-        ],
-        accent=CYAN_ACCENT, tag="100% Verifiable Reality",
-        title_size=14, item_size=10.5)
-
-    # Connecting arrow label
-    arrow_tb = s.shapes.add_textbox(Inches(6.52), Inches(3.9), Inches(0.36), Inches(0.5))
-    tf_a = arrow_tb.text_frame
-    tf_a.margin_left = tf_a.margin_right = tf_a.margin_top = tf_a.margin_bottom = 0
-    p_a = tf_a.paragraphs[0]
-    p_a.text = "+"
-    p_a.font.size = Pt(22)
-    p_a.font.bold = True
-    p_a.font.color.rgb = TEAL_PRIMARY
-    p_a.alignment = PP_ALIGN.CENTER
-
-    add_card(s, Inches(6.88), COL_TOP, COL_W, COL_H,
-        "Layer 2: Interpreted Decision Graph",
-        [
-            "Architectural decisions and rationale extracted via LLMs from PR discussions.",
-            "Bitemporal Validity Intervals: Every decision carries Valid-Time and Transaction-Time.",
-            "Verbatim Provenance Quotation: Extracted claims must quote exact PR comments.",
-            "Superseding Graph Edges: New ADRs automatically retire outdated decision nodes.",
-            "Confidence Scoring: Each decision carries an empirical verification score (e.g. 94%).",
-        ],
-        accent=TEAL_LIGHT, tag="Bitemporal LLM Reasoning",
-        title_size=14, item_size=10.5)
-
-    add_footer(s, 4, 10)
-    return s
-
-
-def build_slide_5_graphrag(prs, blank_layout):
-    """Three-Mode GraphRAG - 3 column cards."""
-    s = prs.slides.add_slide(blank_layout)
-    set_bg(s, prs)
-    add_decorative_accents(s, prs)
-    add_section_header(
-        s,
-        "Retrieval Innovation: Three-Mode GraphRAG Engine",
-        "Retrieval Intelligence",
-        "Dynamic mode selection that solves vocabulary mismatch and temporal blindness in AI-assisted code reasoning",
-        category_color=TEAL_LIGHT
-    )
-
-    COL_W   = Inches(3.64)
-    COL_TOP = Inches(2.12)
-    COL_H   = Inches(4.6)
-
-    add_card(s, Inches(0.8),  COL_TOP, COL_W, COL_H,
-        "1. Anchored Retrieval",
-        [
-            "Starts from a specific file path node (e.g. auth/middleware.py).",
-            "Recursive SQL CTE graph traversal across structural dependencies.",
-            "Finds architectural decisions even with zero vocabulary overlap.",
-            "Ideal for understanding the full history and intent behind a module.",
-        ],
-        accent=TEAL_LIGHT, tag="Structural CTE Walk", item_size=10.5)
-
-    add_card(s, Inches(4.84), COL_TOP, COL_W, COL_H,
-        "2. As-Of Bitemporal",
-        [
-            "Queries the repository state as it existed at any historical snapshot.",
-            "Example: 'What was our session management standard in March 2023?'",
-            "Filters validity intervals (valid_from <= T <= valid_to) to suppress future decisions.",
-            "Prevents anachronisms and superseded policies from infecting analysis.",
-        ],
-        accent=PURPLE_ACCENT, tag="Time-Bounded Context", item_size=10.5)
-
-    add_card(s, Inches(8.88), COL_TOP, COL_W, COL_H,
-        "3. Semantic Similarity",
-        [
-            "High-dimensional vector embedding search powered by pgvector.",
-            "Resilient fallback for broad, conceptual developer queries.",
-            "Filters semantic nearest-neighbours through graph connectivity boundaries.",
-            "Combines statistical vector search with structural graph precision.",
-        ],
-        accent=CYAN_ACCENT, tag="pgvector Fallback", item_size=10.5)
-
-    add_footer(s, 5, 10)
-    return s
-
-
-def build_slide_6_metrics(prs, blank_layout):
-    """DDI and EES metrics slide - 2 large stat cards + 2 description cards."""
-    s = prs.slides.add_slide(blank_layout)
-    set_bg(s, prs)
-    add_decorative_accents(s, prs)
-    add_section_header(
-        s,
-        "Novel Quantitative Metrics: DDI & EES",
-        "Architectural Governance",
-        "Mathematical metrics turning code health and architectural drift into actionable engineering KPIs",
-        category_color=AMBER_ALERT
-    )
-
-    STAT_TOP = Inches(2.12)
-    STAT_H   = Inches(2.0)
-    COL_W    = Inches(5.65)
-    DESC_TOP = Inches(4.28)
-    DESC_H   = Inches(2.45)
-
-    add_stat_card(s, Inches(0.8),  STAT_TOP, COL_W, STAT_H,
-        "72 / 100",
-        "Decision Drift Index  (DDI)",
-        "Quantifies the mathematical divergence between documented architectural intent and active code. "
-        "High DDI signals elevated architectural risk and potential technical debt bankruptcy.",
-        color=AMBER_ALERT)
-
-    add_stat_card(s, Inches(6.88), STAT_TOP, COL_W, STAT_H,
-        "85 / 100",
-        "Engineering Evolution Score  (EES)",
-        "Longitudinal repository health index evaluating delivery stability, author ownership diversity, "
-        "and decision drift across rolling quarterly windows.",
-        color=GREEN_SUCCESS)
-
-    add_card(s, Inches(0.8),  DESC_TOP, COL_W, DESC_H,
-        "Why DDI Matters",
-        [
-            "Detects silent architecture erosion before technical debt bankruptcy.",
-            "Flags undocumented modifications to foundational layers (auth, database, caching).",
-            "Provides automated merge blockers when PRs spike DDI beyond safe thresholds.",
-        ],
-        accent=AMBER_ALERT, item_size=10.5)
-
-    add_card(s, Inches(6.88), DESC_TOP, COL_W, DESC_H,
-        "Why EES Matters",
-        [
-            "Replaces subjective code reviews with a repeatable empirical score.",
-            "Assesses module bus-factor by tracking commit author concentration over time.",
-            "Guides sprint refactoring allocation based on factual component decay.",
-        ],
-        accent=GREEN_SUCCESS, item_size=10.5)
-
-    add_footer(s, 6, 10)
-    return s
-
-
-def build_slide_7_impact_scanner(prs, blank_layout):
-    """Change Impact Scanner walkthrough - 3-step columns."""
-    s = prs.slides.add_slide(blank_layout)
-    set_bg(s, prs)
-    add_decorative_accents(s, prs)
-    add_section_header(
-        s,
-        "Pre-Merge Intelligence: Change Impact Scanner",
-        "Pull Request Governance",
-        "PR #412 walkthrough: detecting blast radius and architectural conflicts before merge",
-        category_color=ROSE_ACCENT
-    )
-
-    # PR badge header
-    pr_badge = s.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE,
-        Inches(0.8), Inches(2.12), Inches(11.72), Inches(0.42)
-    )
-    _solid(pr_badge, RGBColor(0x1C, 0x0E, 0x06))
-    pr_badge.line.color.rgb = AMBER_ALERT
-    pr_badge.line.width = Pt(0.75)
-
-    tf_pr = pr_badge.text_frame
-    tf_pr.word_wrap = False
-    tf_pr.margin_left = Inches(0.3)
-    tf_pr.margin_right = tf_pr.margin_top = tf_pr.margin_bottom = Inches(0.05)
-    p_pr = tf_pr.paragraphs[0]
-    p_pr.text = (
-        "Simulated PR  #412  |  Migrate auth middleware to stateless JWTs  "
-        "|  +142 lines  -89 lines  |  Author: @sharvari"
-    )
-    p_pr.font.size = Pt(10)
-    p_pr.font.bold = True
-    p_pr.font.color.rgb = AMBER_ALERT
-
-    COL_W   = Inches(3.64)
-    COL_TOP = Inches(2.68)
-    COL_H   = Inches(4.04)
-
-    add_card(s, Inches(0.8),  COL_TOP, COL_W, COL_H,
-        "Step 1: Conflict Detection",
-        [
-            "PR #412 modifies authentication middleware to stateless JWTs (+142, -89).",
-            "KAIRO scans files and traverses graph to discover ADR-042.",
-            "ADR-042 mandated session-based auth as the documented standard.",
-            "Alert: 'PR contradicts architectural decision ADR-042 - review required.'",
-        ],
-        accent=AMBER_ALERT, tag="ADR Collision", item_size=10.5)
-
-    add_card(s, Inches(4.84), COL_TOP, COL_W, COL_H,
-        "Step 2: Churn & Bug Risk",
-        [
-            "Scanner queries Layer 1 telemetry for auth/middleware.py historical data.",
-            "File Churn: Modified 47 times in the last 6 months.",
-            "Historical Regression Rate: 23% of previous edits introduced defects.",
-            "Warning: 'Fragile file detected. Additional security review recommended.'",
-        ],
-        accent=PURPLE_ACCENT, tag="Telemetry Risk", item_size=10.5)
-
-    add_card(s, Inches(8.88), COL_TOP, COL_W, COL_H,
-        "Step 3: Resolution & Clearance",
-        [
-            "Original architect (@dave) is inactive; @alice holds 67% module ownership.",
-            "Review auto-assigned to active primary maintainers.",
-            "Team generates superseding ADR-048 to formally approve JWT migration.",
-            "DDI recalculated: Architecture remains 100% documented upon merge.",
-        ],
-        accent=GREEN_SUCCESS, tag="Resolution", item_size=10.5)
-
-    add_footer(s, 7, 10)
-    return s
-
-
-def build_slide_8_agile(prs, blank_layout):
-    """Agile hierarchy and planning poker - 2-column."""
-    s = prs.slides.add_slide(blank_layout)
-    set_bg(s, prs)
-    add_decorative_accents(s, prs)
-    add_section_header(
-        s,
-        "Agile Alignment: Multi-Level Hierarchy & Planning Poker",
-        "Full-Lifecycle Agile",
-        "Connecting high-level business objectives to architecture-aware backlog execution",
-        category_color=CYAN_ACCENT
-    )
-
-    COL_W   = Inches(5.65)
-    COL_TOP = Inches(2.12)
-    COL_H   = Inches(4.6)
-
-    add_card(s, Inches(0.8), COL_TOP, COL_W, COL_H,
-        "Multi-Level Work Hierarchy  (/demo/hierarchy)",
-        [
-            "Structured alignment: Objectives -> Projects -> Epics -> Issues -> Sub-tasks.",
-            "Live Progress Rollups: Automatic point completion at each parent tier.",
-            "Architecture Impact Badges: Issues flagged by the scanner shown on the tree.",
-            "Bidirectional GitHub sync: Issues and milestones with real-time commit data.",
-            "Unified visibility for both developers and project managers.",
-        ],
-        accent=CYAN_ACCENT, tag="Strategic Rollup",
-        title_size=13, item_size=10.5)
-
-    add_card(s, Inches(6.88), COL_TOP, COL_W, COL_H,
-        "Interactive Planning Poker  (/demo/board)",
-        [
-            "Architecture-Aware Story Point Estimation integrated into sprint board.",
-            "Fibonacci Deck: 1, 2, 3, 5, 8, 13, 21 point scale for consensus voting.",
-            "Simulated team votes from @aman, @shruti, @sharvari, and @alex.",
-            "AI Historical Benchmark: Recommends complexity based on file fragility.",
-            "1-click commitment updates sprint velocity and backlog balance.",
-        ],
-        accent=TEAL_LIGHT, tag="Team Consensus",
-        title_size=13, item_size=10.5)
-
-    add_footer(s, 8, 10)
-    return s
-
-
-def build_slide_9_results(prs, blank_layout):
-    """Empirical benchmark results - 3 stat cards + tech stack card."""
-    s = prs.slides.add_slide(blank_layout)
-    set_bg(s, prs)
-    add_decorative_accents(s, prs)
-    add_section_header(
-        s,
-        "Empirical Validation & Benchmark Results",
-        "Experimental Findings",
-        "Rigorous benchmarks across open-source repositories and simulated engineering testbeds",
-        category_color=GREEN_SUCCESS
-    )
-
-    STAT_W   = Inches(3.64)
-    STAT_TOP = Inches(2.12)
-    STAT_H   = Inches(2.1)
-
-    add_stat_card(s, Inches(0.8),  STAT_TOP, STAT_W, STAT_H,
-        "7.1x",
-        "Cross-Reference Recovery",
-        "Timeline API graph ingestion recovered 7.1x more relationships between "
-        "PRs, commits, and reviews vs. standard regex extraction.",
-        color=TEAL_LIGHT)
-
-    add_stat_card(s, Inches(4.84), STAT_TOP, STAT_W, STAT_H,
-        "56% -> 27%",
-        "Overlap Reduction",
-        "Dynamic Hub Degree Suppression prevents sweeping commits from dominating "
-        "search, cutting result-set overlap by more than half.",
-        color=CYAN_ACCENT)
-
-    add_stat_card(s, Inches(8.88), STAT_TOP, STAT_W, STAT_H,
-        "< 1%",
-        "Hallucination Rejection",
-        "Verbatim-quote verification on Layer 2 decisions eliminated fabricated "
-        "citations, achieving 99%+ provenance precision.",
-        color=GREEN_SUCCESS)
-
-    # Full-width tech stack card
-    add_card(s, Inches(0.8), Inches(4.38), Inches(11.72), Inches(2.35),
-        "Production Technology Stack",
-        [
-            "Backend:   Python 3.13, FastAPI async REST API, Pydantic validation models.",
-            "Database:  PostgreSQL + pgvector + recursive SQL CTEs (replaces heavy Neo4j overhead).",
-            "Frontend:  Next.js 16 (React 19, Turbopack), Tailwind CSS 4, Lucide React iconography.",
-            "LLMOps:    OpenRouter proxy (Cohere, Qwen, Llama) with content-hash caching for reproducible inference.",
-        ],
-        accent=PURPLE_ACCENT, tag="Engineering Stack",
-        title_size=13, item_size=10.5)
-
-    add_footer(s, 9, 10)
-    return s
-
-
-def build_slide_10_conclusion(prs, blank_layout):
-    """Conclusion - 3 column impact pillars + final CTA."""
-    s = prs.slides.add_slide(blank_layout)
-    set_bg(s, prs)
-    add_decorative_accents(s, prs)
-    add_section_header(
-        s,
-        "Conclusion: The Strategic Impact of KAIRO",
-        "Project Impact",
-        "Preserving intellectual capital and building self-reasoning software engineering ecosystems",
-        category_color=TEAL_LIGHT
-    )
-
-    COL_W   = Inches(3.64)
-    COL_TOP = Inches(2.12)
-    COL_H   = Inches(3.85)
-
-    add_card(s, Inches(0.8),  COL_TOP, COL_W, COL_H,
-        "For Engineering Teams",
-        [
-            "Zero Knowledge Loss: Engineers instantly understand why code was written.",
-            "Safer Code Reviews: Know the architectural blast radius before merging.",
-            "Confidence in Refactoring: Identify fragile hotspots and outdated decisions.",
-            "Eliminates guesswork in legacy maintenance workflows.",
-        ],
-        accent=TEAL_LIGHT, tag="Developer Productivity", item_size=10.5)
-
-    add_card(s, Inches(4.84), COL_TOP, COL_W, COL_H,
-        "For Engineering Leadership",
-        [
-            "Objective Quality Metrics: Track DDI and EES on executive dashboards.",
-            "Eliminate Architectural Debt: Identify divergence months before outages.",
-            "Auditability: Verbatim provenance provides enterprise governance paper-trails.",
-        ],
-        accent=CYAN_ACCENT, tag="Governance & Oversight", item_size=10.5)
-
-    add_card(s, Inches(8.88), COL_TOP, COL_W, COL_H,
-        "The Research Contribution",
-        [
-            "Solves Temporal Blindness: Bitemporal intervals as the key for LLMOps in codebases.",
-            "Two-Layer Trust Paradigm: Deterministic telemetry + probabilistic LLM outputs coexist safely.",
-            "A New Category: Self-reasoning software engineering memory platform.",
-        ],
-        accent=GREEN_SUCCESS, tag="Academic Innovation", item_size=10.5)
-
-    # Bottom CTA banner
-    cta = s.shapes.add_shape(
-        MSO_SHAPE.ROUNDED_RECTANGLE,
-        Inches(0.8), Inches(6.12), Inches(11.72), Inches(0.72)
-    )
-    _solid(cta, RGBColor(0x08, 0x2E, 0x2A))
-    cta.line.color.rgb = TEAL_PRIMARY
-    cta.line.width = Pt(1)
-
-    tf_cta = cta.text_frame
-    tf_cta.word_wrap = False
-    tf_cta.margin_left = Inches(0.3)
-    tf_cta.margin_right = tf_cta.margin_top = tf_cta.margin_bottom = Inches(0.1)
-    p_cta = tf_cta.paragraphs[0]
-    p_cta.text = (
-        "KAIRO  |  github.com/sharvarianand/kairo  "
-        "|  Try the live demo at  /demo?mode=judge"
-    )
-    p_cta.font.size = Pt(13)
-    p_cta.font.bold = True
-    p_cta.font.color.rgb = TEAL_LIGHT
-    p_cta.alignment = PP_ALIGN.CENTER
-
-    add_footer(s, 10, 10)
-    return s
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# MAIN
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def build_presentation():
+    p.font.name = FONT_NAME
+    p.font.size = Pt(size)
+    p.font.bold = bold
+    p.font.color.rgb = color
+    p.alignment = align
+    return tb
+
+def draw_logo(slide, cx, cy, size=Inches(0.4)):
+    """Draws the exact KAIRO logo from the landing page (Navy rounded rect + teal/cyan K)."""
+    # Background navy box
+    box = rrect(slide, cx, cy, size, size, NAVY_BRAND)
+    
+    # Scale factors based on box size
+    s = size
+    # Vertical line (white)
+    spine = rect(slide, cx + s*0.28, cy + s*0.22, Pt(3), s*0.56, BG_MAIN)
+    _no_line(spine)
+    
+    # Upper arm (Teal)
+    ul = slide.shapes.add_shape(MSO_SHAPE.LINE_INVERSE, cx + s*0.28, cy + s*0.22, s*0.40, s*0.34)
+    ul.line.color.rgb = TEAL
+    ul.line.width = Pt(3)
+    
+    # Lower arm (Cyan)
+    ll = slide.shapes.add_shape(MSO_SHAPE.LINE_INVERSE, cx + s*0.28, cy + s*0.56, s*0.41, s*0.34)
+    ll.line.color.rgb = CYAN
+    ll.line.width = Pt(3)
+    ll.rotation = 0
+
+    # Nodes (Dots)
+    dots = [
+        (cx + s*0.25, cy + s*0.17, CYAN),
+        (cx + s*0.25, cy + s*0.43, TEAL),
+        (cx + s*0.25, cy + s*0.69, CYAN),
+        (cx + s*0.64, cy + s*0.13, TEAL),
+        (cx + s*0.66, cy + s*0.69, CYAN),
+    ]
+    ds = s*0.14
+    for dx, dy, dc in dots:
+        d = slide.shapes.add_shape(MSO_SHAPE.OVAL, dx, dy, ds, ds)
+        d.fill.solid()
+        d.fill.fore_color.rgb = dc
+        _no_line(d)
+
+def slide_chrome(slide, prs, slide_num, total_slides):
+    """Sets background, footer, and subtle top accent."""
+    # Background
+    rect(slide, 0, 0, SW, SH, BG_MAIN)
+    # Subtle top border line
+    rect(slide, 0, 0, SW, Pt(4), TEAL)
+    
+    # Footer
+    rect(slide, Inches(0.8), SH - Inches(0.5), SW - Inches(1.6), Pt(1), BORDER)
+    draw_logo(slide, Inches(0.8), SH - Inches(0.42), Inches(0.25))
+    tbox(slide, Inches(1.15), SH - Inches(0.43), Inches(8.0), Inches(0.3),
+         "KAIRO  |  Project management that understands your codebase", 9, color=TEXT_MUTED)
+    tbox(slide, SW - Inches(1.5), SH - Inches(0.43), Inches(0.7), Inches(0.3),
+         f"{slide_num} / {total_slides}", 9, bold=True, color=TEXT_DARK, align=PP_ALIGN.RIGHT)
+
+def page_header(slide, title, subtitle):
+    """Clean, spacious header for content slides."""
+    tbox(slide, Inches(0.8), Inches(0.6), Inches(11.7), Inches(0.6),
+         title, 28, bold=True, color=TEXT_DARK)
+    tbox(slide, Inches(0.8), Inches(1.2), Inches(11.7), Inches(0.4),
+         subtitle, 14, color=TEXT_MUTED)
+    # Subtle separator
+    rect(slide, Inches(0.8), Inches(1.7), Inches(11.73), Pt(1), BORDER)
+
+def clean_card(slide, l, t, w, h, title, bullets, accent_color=TEAL):
+    """White card with soft border and top accent line."""
+    # Card base
+    rrect(slide, l, t, w, h, BG_MAIN, line_color=BORDER, line_pt=1)
+    # Top accent line
+    rect(slide, l + Pt(6), t + Pt(6), w - Pt(12), Pt(3), accent_color)
+    
+    # Content
+    pad = Inches(0.25)
+    tbox(slide, l + pad, t + Inches(0.25), w - pad*2, Inches(0.4),
+         title, 14, bold=True, color=TEXT_DARK)
+    
+    by = t + Inches(0.65)
+    for b in bullets:
+        tb = tbox(slide, l + pad, by, w - pad*2, Inches(0.4),
+                  f"•  {b}", 11, color=TEXT_MUTED)
+        by += Inches(0.35)
+
+# ═════════════════════════════════════════════════════════════════════════════
+# SLIDES
+# ═════════════════════════════════════════════════════════════════════════════
+
+def slide_1_title(prs, layout):
+    s = prs.slides.add_slide(layout)
+    slide_chrome(s, prs, 1, 8)
+    
+    # Left Column: Brand & Title (Width: 6.5")
+    draw_logo(s, Inches(0.8), Inches(1.5), Inches(0.8))
+    tbox(s, Inches(1.7), Inches(1.6), Inches(4.0), Inches(0.8),
+         "KAIRO", 44, bold=True, color=TEXT_DARK)
+    
+    tbox(s, Inches(0.8), Inches(2.5), Inches(6.5), Inches(1.2),
+         "Project management that understands your codebase.",
+         32, bold=True, color=TEXT_DARK)
+         
+    tbox(s, Inches(0.8), Inches(3.9), Inches(6.0), Inches(1.0),
+         "Reconstructing and preserving architectural memory across commits, PRs, and design decisions to stop undocumented drift before merging.",
+         13, color=TEXT_MUTED)
+         
+    # Team Box
+    team_box = rrect(s, Inches(0.8), Inches(5.2), Inches(6.0), Inches(1.2), BG_ALT, line_color=BORDER)
+    tbox(s, Inches(1.0), Inches(5.35), Inches(5.6), Inches(0.3),
+         "Team: Sharvari Bhondekar | Aman Mehtar | Shruti Gauchandra", 10, bold=True, color=TEXT_DARK)
+    tbox(s, Inches(1.0), Inches(5.65), Inches(5.6), Inches(0.3),
+         "Mentors: Prof. Kranti Gule | Dr. Tatwadarshi P. Nagarhalli", 10, color=TEAL)
+    tbox(s, Inches(1.0), Inches(5.95), Inches(5.6), Inches(0.3),
+         "Dept. of AI & DS, Vidyavardhini's College of Engineering & Technology", 9, color=TEXT_MUTED)
+
+    # Right Column: Visual Dashboard Mockup (Strict bounds: X=7.8 to 12.5)
+    dx = Inches(7.8)
+    dw = Inches(4.7)
+    dy = Inches(1.5)
+    dh = Inches(4.9)
+    
+    rrect(s, dx, dy, dw, dh, BG_MAIN, line_color=BORDER, line_pt=1)
+    # Header of dashboard
+    rect(s, dx, dy, dw, Inches(0.4), BG_ALT)
+    rect(s, dx, dy + Inches(0.4), dw, Pt(1), BORDER)
+    tbox(s, dx + Inches(0.2), dy + Inches(0.08), Inches(3.0), Inches(0.3),
+         "ENGINEERING INTELLIGENCE", 9, bold=True, color=TEXT_MUTED)
+    tbox(s, dx + dw - Inches(1.0), dy + Inches(0.08), Inches(0.8), Inches(0.3),
+         "LIVE SYNC", 9, bold=True, color=TEAL, align=PP_ALIGN.RIGHT)
+
+    features = [
+        ("Temporal Knowledge Graph", "Bitemporal links connecting code to decisions", "Degree ≤ 20", CYAN),
+        ("Decision Drift Index (DDI)", "Detects PRs contradicting active ADRs", "72 / 100", AMBER),
+        ("Change Impact Scanner", "Pre-merge blast radius prediction", "12 Files", ROSE),
+        ("3-Mode GraphRAG", "Synthesize repository answers with citations", "94% Conf.", TEAL)
+    ]
+    
+    for i, (title, sub, badge, col) in enumerate(features):
+        fy = dy + Inches(0.6) + (i * Inches(1.05))
+        rrect(s, dx + Inches(0.2), fy, dw - Inches(0.4), Inches(0.9), BG_MAIN, line_color=BORDER)
+        
+        # Circle icon
+        circ = s.shapes.add_shape(MSO_SHAPE.OVAL, dx + Inches(0.35), fy + Inches(0.25), Inches(0.4), Inches(0.4))
+        circ.fill.solid()
+        circ.fill.fore_color.rgb = BG_ALT
+        circ.line.color.rgb = col
+        circ.line.width = Pt(1.5)
+        
+        tbox(s, dx + Inches(0.85), fy + Inches(0.15), dw - Inches(2.0), Inches(0.3), title, 11, bold=True, color=TEXT_DARK)
+        tbox(s, dx + Inches(0.85), fy + Inches(0.45), dw - Inches(2.0), Inches(0.35), sub, 9, color=TEXT_MUTED)
+        
+        # Badge
+        rrect(s, dx + dw - Inches(1.1), fy + Inches(0.3), Inches(0.8), Inches(0.25), BG_MAIN, line_color=col)
+        tbox(s, dx + dw - Inches(1.1), fy + Inches(0.32), Inches(0.8), Inches(0.25), badge, 8, bold=True, color=col, align=PP_ALIGN.CENTER)
+
+def slide_2_problem(prs, layout):
+    s = prs.slides.add_slide(layout)
+    slide_chrome(s, prs, 2, 8)
+    page_header(s, "The Engineering Memory Crisis", "Why development teams lose context and accumulate hidden debt.")
+
+    CW = Inches(3.77)
+    CT = Inches(2.2)
+    CH = Inches(3.6)
+    
+    clean_card(s, Inches(0.8), CT, CW, CH, "1. Tool Fragmentation", [
+        "Jira, GitHub, and Slack are completely siloed.",
+        "Tools track the current status (Done/In Progress), but never track the 'why'.",
+        "When original developers leave, institutional memory vanishes entirely."
+    ], PURPLE)
+
+    clean_card(s, Inches(4.78), CT, CW, CH, "2. Invisible Decision Drift", [
+        "Documented architecture and live code drift apart daily.",
+        "Pull requests inadvertently violate foundational architectural standards.",
+        "Teams lack any mathematical index to measure or alert on architectural drift."
+    ], AMBER)
+
+    clean_card(s, Inches(8.76), CT, CW, CH, "3. Temporal Blindness", [
+        "Standard AI/RAG retrieves code purely by keyword similarity.",
+        "It cannot distinguish an active architectural rule from an obsolete 2021 choice.",
+        "Results in AI confidently recommending deprecated practices."
+    ], ROSE)
+    
+    rrect(s, Inches(0.8), Inches(6.1), Inches(11.73), Inches(0.5), BG_ALT, line_color=ROSE)
+    tbox(s, Inches(1.0), Inches(6.2), Inches(11.3), Inches(0.3), 
+         "Result: Slower onboarding, fragile codebases, and architectural regressions.", 12, bold=True, color=ROSE, align=PP_ALIGN.CENTER)
+
+def slide_3_solution(prs, layout):
+    s = prs.slides.add_slide(layout)
+    slide_chrome(s, prs, 3, 8)
+    page_header(s, "The KAIRO Solution", "A unified bitemporal knowledge graph translating telemetry into intelligence.")
+
+    # Flow Diagram
+    by = Inches(3.0)
+    
+    # 1. Inputs
+    rrect(s, Inches(0.8), Inches(2.2), Inches(2.5), Inches(3.2), BG_ALT, line_color=BORDER)
+    tbox(s, Inches(0.8), Inches(2.4), Inches(2.5), Inches(0.3), "DATA INPUTS", 10, bold=True, color=TEXT_MUTED, align=PP_ALIGN.CENTER)
+    rect(s, Inches(1.1), Inches(2.9), Inches(1.9), Inches(0.5), BG_MAIN, line_color=CYAN); tbox(s, Inches(1.1), Inches(3.05), Inches(1.9), Inches(0.3), "Commits / PRs", 11, bold=True, align=PP_ALIGN.CENTER)
+    rect(s, Inches(1.1), Inches(3.6), Inches(1.9), Inches(0.5), BG_MAIN, line_color=CYAN); tbox(s, Inches(1.1), Inches(3.75), Inches(1.9), Inches(0.3), "Issue Threads", 11, bold=True, align=PP_ALIGN.CENTER)
+    rect(s, Inches(1.1), Inches(4.3), Inches(1.9), Inches(0.5), BG_MAIN, line_color=CYAN); tbox(s, Inches(1.1), Inches(4.45), Inches(1.9), Inches(0.3), "Code Reviews", 11, bold=True, align=PP_ALIGN.CENTER)
+
+    # Arrow
+    tbox(s, Inches(3.4), Inches(3.6), Inches(0.5), Inches(0.5), "➔", 30, color=BORDER)
+
+    # 2. Engine
+    engine = rrect(s, Inches(4.0), Inches(2.2), Inches(5.33), Inches(3.2), NAVY_BRAND, line_color=TEAL, line_pt=2)
+    tbox(s, Inches(4.0), Inches(2.4), Inches(5.33), Inches(0.3), "KAIRO ENGINE", 12, bold=True, color=TEAL, align=PP_ALIGN.CENTER)
+    
+    rect(s, Inches(4.3), Inches(2.9), Inches(4.7), Inches(0.6), BG_MAIN); tbox(s, Inches(4.4), Inches(3.0), Inches(4.5), Inches(0.4), "1. Graph Builder: Maps code structural facts", 11, bold=True)
+    rect(s, Inches(4.3), Inches(3.7), Inches(4.7), Inches(0.6), BG_MAIN); tbox(s, Inches(4.4), Inches(3.8), Inches(4.5), Inches(0.4), "2. LLM Extractor: Mines architectural decisions", 11, bold=True)
+    rect(s, Inches(4.3), Inches(4.5), Inches(4.7), Inches(0.6), BG_MAIN); tbox(s, Inches(4.4), Inches(4.6), Inches(4.5), Inches(0.4), "3. Bitemporal Index: Stamps historical validity", 11, bold=True)
+
+    # Arrow
+    tbox(s, Inches(9.4), Inches(3.6), Inches(0.5), Inches(0.5), "➔", 30, color=BORDER)
+
+    # 3. Outputs
+    rrect(s, Inches(10.0), Inches(2.2), Inches(2.53), Inches(3.2), BG_ALT, line_color=BORDER)
+    tbox(s, Inches(10.0), Inches(2.4), Inches(2.53), Inches(0.3), "INTELLIGENCE", 10, bold=True, color=TEXT_MUTED, align=PP_ALIGN.CENTER)
+    rect(s, Inches(10.3), Inches(2.9), Inches(1.93), Inches(0.5), BG_MAIN, line_color=TEAL); tbox(s, Inches(10.3), Inches(3.05), Inches(1.93), Inches(0.3), "3-Mode GraphRAG", 10, bold=True, align=PP_ALIGN.CENTER)
+    rect(s, Inches(10.3), Inches(3.6), Inches(1.93), Inches(0.5), BG_MAIN, line_color=AMBER); tbox(s, Inches(10.3), Inches(3.75), Inches(1.93), Inches(0.3), "Impact Scanner", 10, bold=True, align=PP_ALIGN.CENTER)
+    rect(s, Inches(10.3), Inches(4.3), Inches(1.93), Inches(0.5), BG_MAIN, line_color=ROSE); tbox(s, Inches(10.3), Inches(4.45), Inches(1.93), Inches(0.3), "Drift Index (DDI)", 10, bold=True, align=PP_ALIGN.CENTER)
+
+    rrect(s, Inches(0.8), Inches(5.8), Inches(11.73), Inches(0.6), BG_ALT, line_color=TEAL)
+    tbox(s, Inches(1.0), Inches(5.95), Inches(11.3), Inches(0.3), 
+         "Result: An actively protected codebase where architectural intent is mathematically tracked and queryable.", 12, bold=True, color=TEAL, align=PP_ALIGN.CENTER)
+
+def slide_4_features(prs, layout):
+    s = prs.slides.add_slide(layout)
+    slide_chrome(s, prs, 4, 8)
+    page_header(s, "Unique Features & Innovation", "Core capabilities unseen in traditional project management tools.")
+
+    CW = Inches(5.76)
+    CH = Inches(1.9)
+    
+    # Left Column
+    clean_card(s, Inches(0.8), Inches(2.1), CW, CH, "3-Mode GraphRAG Engine", [
+        "Anchored Mode: Structural graph traversal from a specific file path.",
+        "As-Of Mode: Bitemporal snapshot queries (e.g. 'architecture in March').",
+        "Semantic Mode: pgvector nearest-neighbor fallback for broad queries."
+    ], TEAL)
+    
+    clean_card(s, Inches(0.8), Inches(4.2), CW, CH, "Two-Layer Trust Isolation", [
+        "Layer 1 (Deterministic): API facts with 0% hallucination risk.",
+        "Layer 2 (Probabilistic): LLM decisions bound by verbatim provenance quotes.",
+        "Safely combines statistical AI with strict mathematical ground truth."
+    ], PURPLE)
+    
+    # Right Column
+    clean_card(s, Inches(6.77), Inches(2.1), CW, CH, "Decision Drift Index (DDI)", [
+        "The first mathematical metric quantifying architectural drift.",
+        "Compares active code against documented ADRs.",
+        "Automatically blocks CI/CD pipelines if drift exceeds safe thresholds."
+    ], AMBER)
+    
+    clean_card(s, Inches(6.77), Inches(4.2), CW, CH, "Change Impact Scanner", [
+        "Simulates the 'blast radius' of pull requests before they merge.",
+        "Correlates historical file churn with regression bug probability.",
+        "Identifies ownership gaps and assigns optimal reviewers automatically."
+    ], ROSE)
+
+def slide_5_architecture(prs, layout):
+    s = prs.slides.add_slide(layout)
+    slide_chrome(s, prs, 5, 8)
+    page_header(s, "System Architecture", "End-to-end technology stack designed for performance and scale.")
+
+    LW = Inches(11.73)
+    LX = Inches(0.8)
+    LH = Inches(1.0)
+    GAP = Inches(0.2)
+
+    # 1. API / Frontend
+    rrect(s, LX, Inches(2.0), LW, LH, BG_ALT, line_color=BORDER)
+    rect(s, LX, Inches(2.0), Pt(6), LH, TEAL)
+    tbox(s, LX + Inches(0.3), Inches(2.35), Inches(3.0), Inches(0.3), "PRESENTATION LAYER", 11, bold=True, color=TEXT_MUTED)
+    tbox(s, LX + Inches(3.5), Inches(2.35), Inches(7.0), Inches(0.3), "Next.js 16 | React 19 | Tailwind CSS | SaaS Workspace UI", 13, bold=True, color=TEXT_DARK)
+
+    # 2. Application Core
+    rrect(s, LX, Inches(3.2), LW, LH, BG_ALT, line_color=BORDER)
+    rect(s, LX, Inches(3.2), Pt(6), LH, PURPLE)
+    tbox(s, LX + Inches(0.3), Inches(3.55), Inches(3.0), Inches(0.3), "APPLICATION LAYER", 11, bold=True, color=TEXT_MUTED)
+    tbox(s, LX + Inches(3.5), Inches(3.55), Inches(7.0), Inches(0.3), "Python 3.13 | FastAPI | Pydantic | OpenRouter LLM Gateway", 13, bold=True, color=TEXT_DARK)
+
+    # 3. Data Store
+    rrect(s, LX, Inches(4.4), LW, LH, BG_ALT, line_color=BORDER)
+    rect(s, LX, Inches(4.4), Pt(6), LH, CYAN)
+    tbox(s, LX + Inches(0.3), Inches(4.75), Inches(3.0), Inches(0.3), "DATA KNOWLEDGE LAYER", 11, bold=True, color=TEXT_MUTED)
+    tbox(s, LX + Inches(3.5), Inches(4.75), Inches(7.0), Inches(0.3), "PostgreSQL | pgvector | Recursive SQL CTEs (Graph Traversal)", 13, bold=True, color=TEXT_DARK)
+
+    # 4. Ingestion
+    rrect(s, LX, Inches(5.6), LW, LH, BG_ALT, line_color=BORDER)
+    rect(s, LX, Inches(5.6), Pt(6), LH, AMBER)
+    tbox(s, LX + Inches(0.3), Inches(5.95), Inches(3.0), Inches(0.3), "INGESTION LAYER", 11, bold=True, color=TEXT_MUTED)
+    tbox(s, LX + Inches(3.5), Inches(5.95), Inches(7.0), Inches(0.3), "GitHub Apps API | Real-time Webhooks | Async Telemetry Sync", 13, bold=True, color=TEXT_DARK)
+
+def slide_6_usecases(prs, layout):
+    s = prs.slides.add_slide(layout)
+    slide_chrome(s, prs, 6, 8)
+    page_header(s, "Use Cases & Impact", "Real-world engineering scenarios solved by KAIRO.")
+
+    CW = Inches(3.77)
+    CT1 = Inches(2.0)
+    CT2 = Inches(4.1)
+    CH = Inches(1.9)
+
+    clean_card(s, Inches(0.8), CT1, CW, CH, "Developer Onboarding", [
+        "New hires query the graph to understand codebase history instantly.",
+        "Reduces time-to-first-commit significantly."
+    ], GREEN)
+
+    clean_card(s, Inches(4.78), CT1, CW, CH, "Pre-Merge Intelligence", [
+        "Scanner flags ADR violations before a PR is merged.",
+        "Prevents regressions and architectural decay."
+    ], AMBER)
+
+    clean_card(s, Inches(8.76), CT1, CW, CH, "Technical Debt Audits", [
+        "DDI tracking highlights heavily drifted modules.",
+        "Helps leaders prioritize sprint refactoring empirically."
+    ], ROSE)
+
+    clean_card(s, Inches(0.8), CT2, CW, CH, "Time-Travel Debugging", [
+        "Query the exact architectural state of the repo 6 months ago.",
+        "Bitemporal index ensures no anachronisms."
+    ], CYAN)
+
+    clean_card(s, Inches(4.78), CT2, CW, CH, "Agile Poker Estimation", [
+        "AI estimates story points based on historical file fragility.",
+        "Ties high-level epics directly to code impact."
+    ], TEAL)
+
+    clean_card(s, Inches(8.76), CT2, CW, CH, "Compliance & Auditing", [
+        "Verbatim provenance provides an exact paper trail.",
+        "Crucial for enterprise governance and security reviews."
+    ], PURPLE)
+    
+    # Stat bar
+    rrect(s, Inches(0.8), Inches(6.15), Inches(11.73), Inches(0.4), NAVY_BRAND)
+    tbox(s, Inches(1.0), Inches(6.22), Inches(11.3), Inches(0.3), 
+         "Benchmark: 7.1x cross-reference recovery | 56% → 27% overlap reduction | < 1% hallucination rate", 10, bold=True, color=TEAL_LIGHT, align=PP_ALIGN.CENTER)
+
+def slide_7_references(prs, layout):
+    s = prs.slides.add_slide(layout)
+    slide_chrome(s, prs, 7, 8)
+    page_header(s, "References", "Foundational academic research and industry standards.")
+
+    refs = [
+        ("Edge, C., Ramos, J., & Xu, X. (2021). Temporal Knowledge Graphs.", "Bitemporal graph models for valid-time and transaction-time intervals."),
+        ("Lewis, P., et al. (2020). Retrieval-Augmented Generation.", "Foundational RAG architecture extended by KAIRO's graph traversal."),
+        ("Edge, D., et al. (2024). From Local to Global: A Graph RAG Approach.", "Microsoft Research framework inspiring multi-mode retrieval."),
+        ("Snyder, M., & Atkins, B. (2017). Architecture Decision Records (ADRs).", "ThoughtWorks standard adopted for Layer 2 decision node schemas."),
+        ("Nauer, E., et al. (2023). Software Evolution and Technical Debt Metrics.", "Empirical foundation for the Engineering Evolution Score (EES)."),
+        ("Pgvector Contributors. (2023). pgvector: Open-source vector search.", "Vector extension enabling KAIRO's semantic retrieval fallback.")
+    ]
+
+    by = Inches(2.2)
+    for i, (cit, rel) in enumerate(refs):
+        # Number
+        tbox(s, Inches(0.8), by, Inches(0.5), Inches(0.3), f"[{i+1}]", 11, bold=True, color=TEAL)
+        # Citation
+        tbox(s, Inches(1.3), by, Inches(11.2), Inches(0.3), cit, 11, bold=True, color=TEXT_DARK)
+        # Relevance
+        tbox(s, Inches(1.3), by + Inches(0.25), Inches(11.2), Inches(0.3), f"Relevance: {rel}", 10, color=TEXT_MUTED)
+        by += Inches(0.65)
+
+def slide_8_thankyou(prs, layout):
+    s = prs.slides.add_slide(layout)
+    slide_chrome(s, prs, 8, 8)
+    
+    # Large Logo centered
+    draw_logo(s, Inches(5.9), Inches(1.8), Inches(1.5))
+    
+    tbox(s, Inches(1.0), Inches(3.6), Inches(11.3), Inches(0.8), "Thank You", 48, bold=True, color=TEXT_DARK, align=PP_ALIGN.CENTER)
+    
+    rect(s, Inches(6.0), Inches(4.5), Inches(1.3), Pt(4), TEAL)
+    
+    tbox(s, Inches(1.0), Inches(4.8), Inches(11.3), Inches(0.4), "Project management that understands your codebase.", 16, color=TEXT_MUTED, align=PP_ALIGN.CENTER)
+    
+    # CTA Box
+    cta = rrect(s, Inches(3.66), Inches(5.6), Inches(6.0), Inches(0.6), BG_ALT, line_color=BORDER, line_pt=1.5)
+    tbox(s, Inches(3.66), Inches(5.75), Inches(6.0), Inches(0.4), "Live Demo: /demo?mode=judge  |  GitHub: sharvarianand/kairo", 12, bold=True, color=TEAL, align=PP_ALIGN.CENTER)
+
+# ═════════════════════════════════════════════════════════════════════════════
+
+def build():
     prs = pptx.Presentation()
-    prs.slide_width  = Inches(13.333)
-    prs.slide_height = Inches(7.5)
+    prs.slide_width = SW
+    prs.slide_height = SH
     blank = prs.slide_layouts[6]
 
-    build_slide_1_title(prs, blank)
-    build_slide_2_problem(prs, blank)
-    build_slide_3_purpose(prs, blank)
-    build_slide_4_two_layer(prs, blank)
-    build_slide_5_graphrag(prs, blank)
-    build_slide_6_metrics(prs, blank)
-    build_slide_7_impact_scanner(prs, blank)
-    build_slide_8_agile(prs, blank)
-    build_slide_9_results(prs, blank)
-    build_slide_10_conclusion(prs, blank)
+    slide_1_title(prs, blank)
+    slide_2_problem(prs, blank)
+    slide_3_solution(prs, blank)
+    slide_4_features(prs, blank)
+    slide_5_architecture(prs, blank)
+    slide_6_usecases(prs, blank)
+    slide_7_references(prs, blank)
+    slide_8_thankyou(prs, blank)
 
     prs.save(OUTPUT_FILE)
-    print(f"Presentation saved: {OUTPUT_FILE}")
-    print(f"Slides: {len(prs.slides)}")
-
+    print(f"Saved: {OUTPUT_FILE}")
 
 if __name__ == "__main__":
-    build_presentation()
+    build()
