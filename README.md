@@ -1,222 +1,177 @@
-# KAIRO
+<div align="center">
+  <img src="frontend/public/logo.jpg" width="120" alt="KIARO Logo" />
+  <h1>KIARO</h1>
+  <p><strong>A Temporal Knowledge Graph Based Engineering Intelligence Platform</strong></p>
+  <p>
+    <img src="https://img.shields.io/badge/Category-Generative_AI_&_LLMOps-06b6d4?style=for-the-badge" alt="AI" />
+    <img src="https://img.shields.io/badge/Stack-FastAPI_&_Next.js-ff5258?style=for-the-badge" alt="Full Stack" />
+    <img src="https://img.shields.io/badge/Build-Prototype_Ready-10b981?style=for-the-badge" alt="Prototype Ready" />
+  </p>
+</div>
 
-Engineering intelligence over GitHub history. Reconstructs *why* a codebase looks the way
-it does by building a temporal knowledge graph from commits, PRs, issues, and discussion,
-then reasoning over it.
+## 📖 Background
 
-## What it does
+Modern software engineering teams rely on distributed toolchains-GitHub, Jira, Slack, and wikis-that efficiently track the **current state** of tasks but systematically fail to preserve the **reasoning** behind critical architectural decisions. Over time, the intended architecture diverges from the implemented codebase, and teams lose the ability to answer fundamental questions like *"Why does the auth layer use JWT?"* or *"What happens if we change this module?"*
 
-Git records what changed. It does not record why. KAIRO reconstructs the reasoning by
-connecting artifacts into a graph and traversing it:
+Standard AI developer tools and Vector RAG (Retrieval-Augmented Generation) suffer from **Temporal Blindness**. They retrieve chunks based purely on semantic similarity, making it impossible to distinguish between an active architectural decision and a superseded one from years ago.
 
-    auth.py  <--MODIFIED--  PR #412  --CLOSES-->  Issue #388  <--COMMENTED_ON--  the argument
+## 🎯 The Solution
 
-Questions this answers that a search box cannot:
+**KIARO** (Knowledge-graph Intelligence for Architectural Reasoning and Observability) is an AI-driven platform that reconstructs and preserves engineering memory. It ingests historical artifacts (commits, PRs, issues) and builds a bitemporal knowledge graph to answer deep architectural questions that simple search boxes cannot.
 
-- Why does the auth layer use JWTs? (walk back from the file to the discussion)
-- Why does this file break constantly? (every PR that touched it, every issue they closed)
-- What did the team believe about caching in March 2023? (temporal query -- see below)
+### Core Capabilities
+- 🧠 **Architectural Extraction**: Leverages LLMs to extract definitive architectural decisions from unstructured developer discussions.
+- ⏱️ **Bitemporal Graph Mapping**: Tracks both when KIARO learned a fact (*Transaction Time*) and when the fact was actually true in the real world (*Valid Time*).
+- 📉 **Decision Drift Index (DDI)**: A quantifiable metric that measures how far the current codebase has drifted from documented architectural decisions.
+- 📊 **Engineering Evolution Score (EES)**: A longitudinal health metric for repositories based on delivery stability, ownership diversity, and drift.
+- 🛡️ **Change Impact Scanner**: A pre-merge analytical tool that scans modified files and predicts architectural risk using historical telemetry.
 
-## Status
+---
 
-Working: ingestion, deterministic graph, multi-hop traversal, CLI, decision extraction,
-supersession detection (bitemporal intervals close).
-Not built yet: hybrid retrieval, evaluation harness, DDI/EES metrics, frontend.
+## 🔒 The "X-Factor" Features
 
-## Setup
+1. **Two-Layer "Trust-Isolated" Graph**
+   To prevent AI hallucinations from infecting factual data, KIARO strictly separates the graph:
+   - **Layer 1 (Deterministic)**: 100% factual API data (Commits, PRs, Authors). Never wrong, zero LLM involvement.
+   - **Layer 2 (Interpreted)**: LLM-extracted decisions carrying strict provenance (verbatim quotes) and confidence scores.
 
-    cp .env.example .env       # fill in keys
-    docker-compose up -d
-    docker exec -i kairo-db psql -U kairo -d kairo < schema.sql
-    uv venv --python 3.11 && uv pip install -e .
+2. **Three-Mode GraphRAG Retrieval**
+   KIARO dynamically selects retrieval modes based on user intent:
+   - *Anchored*: Walks the graph from a specific file to find structural dependencies sharing zero vocabulary with the prompt.
+   - *As-Of*: Filters temporal intervals to answer historical queries (e.g., *"What did we believe in March 2023?"*).
+   - *Semantic*: Fallback `pgvector` similarity search.
 
-`.env` needs an OpenAI-compatible endpoint (base URL, key, model) and a GitHub token
-(github.com/settings/tokens, classic, scope `public_repo`). Without the token the API
-allows 60 requests/hour instead of 5000, which is not enough to ingest a repo.
+3. **Dynamic Hub Suppression**
+   Unrestricted graph traversal in codebases suffers from *Hub Domination* (e.g., a sweeping refactor commit connecting 500 unrelated files). KIARO implements mathematical degree-suppression, reducing result-set overlap from 56% to 27% and drastically improving LLM context quality.
 
-## Use
+---
 
-    kairo ingest fastapi/fastapi --max-pages 10   # omit --max-pages for full history
-    kairo stats
-    kairo churn -n 15
-    kairo history src/click/core.py
+## 🧠 System Architecture
 
-## Web workspace
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#09090b',
+    'primaryBorderColor': '#14b8a6',
+    'primaryTextColor': '#ffffff',
+    'lineColor': '#14b8a6',
+    'clusterBkg': 'transparent',
+    'clusterBorder': '#14b8a6'
+  }
+}}%%
+graph TD
+    subgraph "Data Ingestion Pipeline"
+        GitHub["GitHub API (REST + GraphQL)"] --> |Timeline Events| IngestEngine["Rate-Limited Ingestion Engine"]
+        IngestEngine --> LLM["LLM Decision Extractor"]
+    end
 
-KAIRO also includes a responsive engineering-intelligence workspace. It exposes the
-existing temporal graph as an evidence-backed Q&A surface, Codebase X-Ray, and a
-deterministic pre-merge Change Impact Scan.
+    subgraph "Bitemporal Knowledge Graph (PostgreSQL)"
+        IngestEngine --> L1[("Layer 1: Deterministic Facts")]
+        LLM --> L2[("Layer 2: Interpreted Decisions")]
+        L1 -.-> |Provenance Links| L2
+    end
 
-    kairo-web
+    subgraph "Three-Mode GraphRAG"
+        L1 --> Anchored["Anchored Walk"]
+        L2 --> AsOf["As-Of Filter"]
+        L2 --> Semantic["Semantic pgvector"]
+    end
 
-Then open http://127.0.0.1:8000. Ingest a repository first; the workspace reads the
-same PostgreSQL graph as the CLI and does not create a parallel data store.
+    subgraph "Engineering Workspace"
+        Anchored --> FastAPI["FastAPI Backend"]
+        AsOf --> FastAPI
+        Semantic --> FastAPI
+        FastAPI <--> |REST API| NextJS["Next.js Command Dashboard"]
+    end
+```
 
-## Architecture
+## 🔄 User & Data Flow
 
-Two graphs, deliberately kept in separate tables.
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'actorBkg': '#09090b',
+    'actorBorder': '#14b8a6',
+    'actorTextColor': '#ffffff',
+    'signalColor': '#14b8a6',
+    'signalTextColor': '#ffffff',
+    'noteBkg': '#14b8a6',
+    'noteTextColor': '#000000',
+    'noteBorderColor': '#14b8a6'
+  }
+}}%%
+sequenceDiagram
+    participant Engineer as Software Engineer
+    participant UI as Next.js Dashboard
+    participant API as FastAPI Backend
+    participant DB as Postgres (Graph)
+    participant LLM as Generative LLM
 
-**Layer 1 -- deterministic** (`gh_*`, `edges`). Straight from the GitHub API. "PR #42
-modified auth.py." Never wrong, no LLM involved.
+    Engineer->>UI: "Why did we switch to JWT in auth.py?"
+    UI->>API: Submit Query
+    
+    Note over API: Detect Intent: File Anchor
+    API->>DB: Execute Recursive CTE from "auth.py"
+    DB-->>API: Return [Commits] -> [PRs] -> [Decisions]
+    
+    Note over API: Apply Hub Suppression
+    API->>LLM: Prompt with Structurally Connected Decisions
+    LLM-->>API: Synthesize Answer + Provenance
+    
+    API-->>UI: Return Evidence-Backed Response
+    UI-->>Engineer: Display Answer with Clickable Citations
+```
 
-**Layer 2 -- interpreted** (`decisions`, `decision_edges`). LLM-extracted. "Issue #17
-decided to use JWTs over sessions." Every row can be wrong, so every row carries
-`confidence`, `extracted_by`, and `source_span` -- the verbatim text it came from. That
-last field is what lets the UI say "KAIRO thinks this *because of this comment*", turning
-a hallucination from a silent lie into a visible, clickable one.
+---
 
-Conflating these layers is the main way a system like this starts quietly lying: the
-skeleton feels solid, so the interpretations inherit unearned trust.
+## 🛠️ Technical Architecture & Stack
 
-### Bitemporality
+### Backend & Graph Engine
+- **Core Engine:** Python 3.11+, FastAPI, Uvicorn
+- **Database:** PostgreSQL 16 with `pgvector` extension
+- **Graph Traversal:** Native SQL Recursive CTEs (Replaces Neo4j)
+- **AI Integration:** OpenAI-compatible API with content-hash caching
 
-Decisions carry two independent time axes:
+### Engineering Workspace (Frontend)
+- **Framework:** Next.js 15 (App Router), React 19
+- **Styling:** Tailwind CSS v4 (Dark-mode tactical theme)
+- **UI Components:** Lucide Icons, React Joyride (Interactive Tours)
 
-- **valid time** (`valid_from` / `valid_to` / `superseded_by`) -- when the fact was true
-  in the world. A JWT decision made in Jan 2023 and reversed in Sep 2024 has a closed
-  interval.
-- **ingestion time** (`ingested_at`) -- when KAIRO learned it. Backfilling four years of
-  history today gives thousands of rows with identical `ingested_at` and wildly different
-  `valid_from`.
+---
 
-Both are needed to answer "what did the team believe in March 2023?" -- ask for decisions
-whose validity interval *contains* that date, not ones created then. A vector store
-cannot do this at all: embeddings have no representation of a fact ceasing to be true, so
-a superseded decision retrieves exactly as well as a live one. That is "temporal
-blindness", and it is the specific failure the evaluation targets.
+## 🚀 Setup & Installation
 
-### Stack
+To run KIARO, you need to spin up the FastAPI backend and the Next.js frontend in separate terminal windows.
 
-Postgres (+pgvector) for everything -- relational, vector, and graph. The proposal
-specified Neo4j + Redis + Postgres; recursive CTEs cover the graph traversal and a job
-table covers the queue, so one service replaces three. Fewer moving parts to break on
-demo day.
+### 1. Terminal 1: Database & Python Backend
+Ensure you have Python 3.11+ and Docker installed.
 
-No LangGraph. The extraction and retrieval pipelines are acyclic -- read, prompt, parse,
-write -- so a graph orchestration framework adds indirection without benefit, and makes
-the content-hash LLM cache harder to implement. Worth revisiting only if root-cause
-reasoning later needs a genuine loop.
+```bash
+# Setup Database
+docker-compose up -d
+docker exec -i kairo-db psql -U kairo -d kairo < schema.sql
 
-## Findings so far
+# Setup Virtual Environment
+python -m venv .venv
+.\.venv\Scripts\activate  # Windows
 
-**Hub domination is the central retrieval problem.** Unrestricted depth-3 traversal from
-four unrelated files returned result sets overlapping 91-99% -- the walk had stopped being
-about the start node. Cause: bridging through high-degree nodes (a commit touching 200
-files, a changelog every release edits) connects everything to everything.
+# Install & Run
+pip install -e .
+uvicorn src.kairo.web:app --reload
+```
+*(The backend API will run on `http://localhost:8000`)*
 
-Two wrong diagnoses preceded the right one, both worth recording because they look
-plausible: person nodes as hubs (filtering them changed almost nothing), and `PARENT`
-commit-ancestry edges (removing them helped marginally). The actual mechanism is
-`file -> commit -> file`, where any sweeping commit is a bridge.
+### 2. Terminal 2: Next.js Frontend
+Ensure you have Node.js 18+ installed.
 
-Fix is `max_degree`: refuse to *expand through* nodes above a degree threshold, while
-still returning them as answers when directly connected. Tuned on fastapi/fastapi
-(1000 commits, 16k edges), Jaccard overlap across four unrelated source files:
+```bash
+cd frontend
+npm install
+npm run dev -p 3001
+```
+*(The Command Dashboard will be available at `http://localhost:3001`)*
 
-    max_degree   avg nodes   overlap
-    None               786       56%
-    100                306       39%
-    50                 203       37%
-    30                 149       30%
-    20                 130       27%     <- default
-    10                  35        3%
-
-**Two measurement traps**, both of which produced misleading numbers first. Normalising
-overlap by `min(|A|,|B|)` makes aggressive pruning look *worse* -- small result sets of
-shared core files score high -- so use Jaccard. And leaving `limit` at its default
-truncates unsuppressed walks, flattering the baseline. Tuning on a 100-commit sample is
-useless: every file is proportionally a hub, and the threshold has no working range.
-
-**Result ordering decides answer quality.** `DISTINCT ON` must sort by its own key, so
-without an outer `ORDER BY depth` the caller gets node-id order -- and depth-3 dependency
-bumps outrank the depth-1 commits that actually changed the file. Before the fix,
-`oauth2.py` returned ten "Bump python-packages" commits. After, it returns "OAuth2 scopes
-revamped", "Implement OAuth2 authorization_code integration", "Use 401 with
-WWW-Authenticate for OAuth2". Same graph, same traversal, entirely different usefulness.
-This matters most when results are truncated to fit an LLM prompt.
-
-**Hallucination is not the interesting failure mode; misattribution is.** The quote
-filter (discard any decision whose verbatim quote is absent from the source) rejected 1
-of 102 extractions -- a real but weak signal. The damaging error passed the filter
-cleanly: "Switch from SQLAlchemy Core to PonyORM" was extracted as a FastAPI decision
-from issue #891, where the quote is a *user* writing "I have found SQLAlchemy.core rather
-difficult to work with and decided to go another route". The quote is genuinely present.
-It is simply not evidence of a project decision.
-
-The consequence was not cosmetic. That phantom decision then superseded three real
-decisions about FastAPI's SQLAlchemy support, retroactively closing their validity
-intervals -- so a query for "what did the team believe about SQLAlchemy in 2020?" would
-have returned nothing, on the authority of one user's blog-post-in-a-comment.
-
-Verbatim-quote verification proves evidence *exists*. It says nothing about whether the
-speaker had authority to bind the project. The prompt now separates project decisions
-from user experience reports, and issue #891 correctly yields zero decisions.
-
-**Supersession detection has to be conservative by construction.** 57 candidate pairs
-(cosine distance < 0.45, later-than-earlier only) produced 4 supersessions -- a 7% rate.
-A detector that says yes often is the alarming outcome, not a stingy one: every false
-positive closes an interval, and a closed interval silently deletes a period of history
-from every temporal query. Embedding similarity is a recall filter feeding an LLM judge,
-never the judge itself -- "will not support Pydantic models as query params" and "will not
-support JSON-encoded complex types in query params" sit at distance 0.283 and are two
-coexisting refusals, not a replacement.
-
-**Timeline API over regex for PR->issue links.** Closing-keyword regex over titles and
-bodies found 26 CLOSES edges across 1000 items. GitHub's timeline API -- which records
-cross-references as events rather than prose -- found 186 across 1500 items, plus 394
-MENTIONS. Links made in comments, through the UI, or via commits are invisible to the
-regex. Three filters keep the edges honest: same-repo only (issue #12 collects
-cross-references from unrelated tutorial repos, which would make every popular issue a
-hub), PRs only for CLOSES, and the reference must precede the close.
-
-**Bounded ingests silently desynchronise.** GitHub pages issues oldest-first and commits
-newest-first, so `--max-pages 10` on both captured fastapi's *first* 1000 issues (2019)
-and its *last* 1000 commits (2026) -- disjoint eras, 153 shared files, and no path from a
-commit to the discussion that motivated it. Bounded runs now pin commits to the item
-window with `until`. After the fix both halves span 2018-12 to 2020-06: 1500 items, 1065
-commits, 4705 commit->file edges, and 266 files with four or more distinct item histories
--- the substrate multi-hop and recurrence questions need.
-
-**Extraction confidence is not calibrated.** Across a full run the extractor emits only
-three distinct values -- 1.0 (67%), 0.95, and 0.9 -- so `confidence` is a coarse
-self-report, not a probability, and any extraction threshold below 0.9 is inert. It is
-still worth storing for provenance, and it retains some discriminative power in
-supersession detection, where the judge answers a harder yes/no question. Filtering bad
-extractions has to be done by the prompt and by verification, not by thresholding a number
-the model is not able to produce meaningfully.
-
-**A competent baseline is a load-bearing part of the claim.** The vector arm indexes the
-same 1500 threads into 7817 chunks with the same local embedding model, and it retrieves
-well: "why use async def instead of def" returns the right thread at distance 0.334. It
-also spends ~18% of its retrieval slots on repeat chunks from one thread, an honest cost
-of chunk overlap. Any win the graph shows against this has to come from structure, because
-the corpus, embeddings, and generator are held constant.
-
-## Open questions
-
-- **Ingestion scope.** Currently 1500 items and 1065 commits of fastapi/fastapi, spanning
-  2018-12 to 2020-06. Full history is ~50k commits and days of wall-clock at 5000
-  req/hour. The current slice covers the framework's formative period, which is where the
-  interesting reversals are.
-- **Extraction recall is unmeasured.** Precision is inspectable by reading the rows;
-  recall needs threads hand-labelled for what *should* have been found. This is the
-  weakest part of the evaluation and should be stated as such rather than hidden.
-- **The evaluation question set is not yet human-reviewed.** `kairo questions` drafts
-  candidates grounded in database rows so ground truth is checkable, but a set authored by
-  the system under test is not a credible instrument until a person has cut and rewritten
-  it. That review is owed before any number gets reported.
-
-## Layout
-
-    src/kairo/
-      config.py    settings from .env
-      db.py        psycopg wrapper, no ORM
-      github.py    REST client, disk-cached, rate-limit aware
-      ingest.py    GitHub -> Layer 1 + skeleton edges (no LLM)
-      graph.py     recursive-CTE traversal, hub suppression, named queries
-      llm.py       cached OpenAI-compatible wrapper
-      cli.py       typer entry point
-
-Every GitHub response and LLM completion is cached to `.cache/` by content hash. The first
-ingest costs the full request budget; every re-run after it is free and instant. This is
-also what makes results reproducible after the fact -- the cache is a frozen snapshot.
+---
+*KIARO doesn't just track work-it protects teams from repeating mistakes.*
